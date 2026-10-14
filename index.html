@@ -10,9 +10,10 @@
   <title>소원함</title>
   <!-- Pretendard Web Font CDN (High Readability & Clean Sans-serif) -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <!-- PWA Manifest -->
+  <!-- PWA Manifest & Favicon -->
   <link rel="manifest" href="manifest.json">
-  <!-- Apple Touch Icon -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="shortcut icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -170,8 +171,8 @@
             </div>
 
             <form id="wishForm" autocomplete="off">
-              <div class="form-row">
-                <!-- Person Selector -->
+              <!-- Row 1: Person Selector -->
+              <div class="form-row form-row-single">
                 <div class="form-group flex-1">
                   <label class="form-label" for="wishAuthor">소원 작성자</label>
                   <div class="author-selector-group" id="authorSelectorGroup">
@@ -186,15 +187,18 @@
                   </div>
                   <input type="hidden" id="wishAuthor" value="user1">
                 </div>
+              </div>
 
+              <!-- Row 2: Registration Date & Category (50:50 Split) -->
+              <div class="form-row form-row-split">
                 <!-- Registration Date Selector -->
-                <div class="form-group flex-1">
-                  <label class="form-label" for="wishCreatedAt">등록 날짜 설정</label>
+                <div class="form-group flex-half">
+                  <label class="form-label" for="wishCreatedAt">등록 날짜</label>
                   <input type="date" id="wishCreatedAt" class="styled-input" required>
                 </div>
 
                 <!-- Category/Type selector -->
-                <div class="form-group flex-1">
+                <div class="form-group flex-half">
                   <label class="form-label" for="wishCategory">소원 유형</label>
                   <select id="wishCategory" class="styled-select">
                     <option value="데이트 / 놀기 🎡">데이트 / 놀기 🎡</option>
