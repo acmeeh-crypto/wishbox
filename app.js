@@ -366,7 +366,11 @@ async function initSupabaseIfConfigured() {
   }
 
   try {
-    appState.supabaseClient = window.supabase.createClient(url, key);
+    // URL 정제 (끝부분 공백 및 슬래시 제거)
+    const cleanUrl = url.trim().replace(/\/+$/, '');
+    const cleanKey = key.trim();
+
+    appState.supabaseClient = window.supabase.createClient(cleanUrl, cleanKey);
     const { data, error } = await appState.supabaseClient
       .from('wishes')
       .select('*')
@@ -375,6 +379,13 @@ async function initSupabaseIfConfigured() {
     if (error) {
       console.warn('Supabase connect error:', error);
       setOfflineSyncUI();
+      if (error.code === '42P01' || error.message?.includes('wishes') || error.message?.includes('relation')) {
+        alert('⚠️ 동기화 실패: DB에 "wishes" 테이블이 없습니다.\nSupabase SQL Editor에서 제공된 SQL을 먼저 실행해주세요!');
+      } else if (error.message?.includes('JWT') || error.message?.includes('apiKey') || error.code === 'PGRST301') {
+        alert('⚠️ 동기화 실패: Anon Key가 올바르지 않습니다.\neyJ로 시작하는 긴 키를 정확히 입력했는지 확인해주세요.');
+      } else {
+        alert('⚠️ 동기화 실패: ' + (error.message || '연결에 실패했습니다. URL과 키를 확인해주세요.'));
+      }
       return;
     }
 
@@ -389,6 +400,7 @@ async function initSupabaseIfConfigured() {
   } catch (err) {
     console.error(err);
     setOfflineSyncUI();
+    alert('⚠️ 연결 오류 발생: ' + (err.message || '인터넷 연결 또는 Supabase URL 형식을 확인해주세요.'));
   }
 }
 
