@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="소원함">
+  <meta name="theme-color" content="#ff6584">
+  <title>소원함</title>
+  <!-- Pretendard Web Font CDN (High Readability & Clean Sans-serif) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="wishbox_logo.png">
+  <!-- Supabase JS Client via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       APP SHELL: 앱 전체 구조 (header / screen-viewport / modals)
+       ============================================================ -->
+  <div id="appShell">
+
+    <!-- ── SHARED HEADER (항상 표시) ─────────────────────────── -->
+    <header class="app-header" id="appHeader">
+      <div class="header-inner">
+        <!-- 뒤로가기 버튼 (홈 화면에서는 숨김) -->
+        <button id="btnBack" class="btn-back hidden" title="홈으로">
+          ← 뒤로
+        </button>
+
+        <!-- 로고 (홈 화면에서만 표시) -->
+        <div class="logo-area" id="headerLogo">
+          <div class="logo-brand">
+            <h1 class="logo-title">
+              <img src="wishbox_logo.png" alt="소원함" class="logo-title-img">
+            </h1>
+            <p class="logo-subtitle">시즌2</p>
+          </div>
+        </div>
+
+        <!-- 현재 화면 제목 (서브 화면에서만 표시) -->
+        <div class="header-screen-title hidden" id="headerScreenTitle"></div>
+
+        <!-- 헤더 액션 버튼 (항상 표시) -->
+        <div class="header-actions">
+          <button id="btnOpenProfiles" class="btn-subtle" title="두 사람 이름/아이콘 변경">
+            <span class="icon">👥</span> 프로필 설정
+          </button>
+          <button id="btnOpenSync" class="btn-subtle" title="Supabase 온라인 실시간 동기화 설정">
+            <span class="icon">☁️</span> <span id="syncStatusText">동기화 설정</span>
+            <span id="syncIndicator" class="sync-dot offline"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── SCREEN VIEWPORT (화면 전환 컨테이너) ──────────────── -->
+    <div id="screenViewport">
+
+      <!-- ★ HOME SCREEN ──────────────────────────────────────── -->
+      <div id="screen-home" class="app-screen active">
+        <div class="home-content">
+          <!-- 홈 히어로 영역 -->
+          <div class="home-hero">
+            <div class="home-logo-wrap">
+              <img src="wishbox_transparent.png" alt="소원함" class="home-hero-img">
+            </div>
+            <h2 class="home-title">우리 둘의 소원함</h2>
+            <p class="home-subtitle">시즌 2</p>
+          </div>
+
+          <!-- 네비게이션 버튼 3개 -->
+          <div class="home-nav-buttons">
+            <button class="home-nav-btn" data-target-screen="screen-stats">
+              <span class="home-nav-icon">📊</span>
+              <span class="home-nav-label">소원 현황판</span>
+              <span class="home-nav-arrow">→</span>
+            </button>
+            <button class="home-nav-btn" data-target-screen="screen-register">
+              <span class="home-nav-icon">💌</span>
+              <span class="home-nav-label">소원 등록</span>
+              <span class="home-nav-arrow">→</span>
+            </button>
+            <button class="home-nav-btn" data-target-screen="screen-list">
+              <span class="home-nav-icon">📜</span>
+              <span class="home-nav-label">소원 보기</span>
+              <span class="home-nav-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ SCREEN: 소원 현황판 ───────────────────────────────── -->
+      <div id="screen-stats" class="app-screen">
+        <main class="container">
+          <section class="stats-card">
+            <div class="stats-header">
+              <div class="stats-title-group">
+                <span class="badge-pill">📊 소원 현황판</span>
+                <span class="stats-caption">등록된 소원은 30일 동안 유지됩니다</span>
+              </div>
+              <div class="active-count-highlight">
+                <span class="count-label">현재 진행 중인 소원</span>
+                <span class="count-number" id="statActive">0</span>
+                <span class="count-unit">개</span>
+              </div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-item total">
+                <div class="stat-icon">📝</div>
+                <div class="stat-info">
+                  <span class="stat-name">전체 등록</span>
+                  <strong class="stat-value" id="statTotal">0</strong>
+                </div>
+              </div>
+              <div class="stat-item active">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-info">
+                  <span class="stat-name">등록(진행 중)</span>
+                  <strong class="stat-value" id="statActiveSmall">0</strong>
+                </div>
+              </div>
+              <div class="stat-item completed">
+                <div class="stat-icon">🎉</div>
+                <div class="stat-info">
+                  <span class="stat-name">이룬 소원(완료)</span>
+                  <strong class="stat-value" id="statCompleted">0</strong>
+                </div>
+              </div>
+              <div class="stat-item expired">
+                <div class="stat-icon">💨</div>
+                <div class="stat-info">
+                  <span class="stat-name">소멸된 소원</span>
+                  <strong class="stat-value" id="statExpired">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- User breakdown comparison bar -->
+            <div class="user-comparison-bar">
+              <div class="user-stat-tag" id="user1StatTag">
+                <span class="user-avatar-mini" id="user1MiniAvatar">🐰</span>
+                <span class="user-name-mini" id="user1StatName">사용자 1</span>:
+                <span class="user-count-mini" id="user1StatCount">진행 0 · 완료 0</span>
+              </div>
+              <div class="user-stat-divider">|</div>
+              <div class="user-stat-tag" id="user2StatTag">
+                <span class="user-avatar-mini" id="user2MiniAvatar">🐻</span>
+                <span class="user-name-mini" id="user2StatName">사용자 2</span>:
+                <span class="user-count-mini" id="user2StatCount">진행 0 · 완료 0</span>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- ★ SCREEN: 소원 등록 ─────────────────────────────────── -->
+      <div id="screen-register" class="app-screen">
+        <main class="container">
+          <section class="wish-form-card">
+            <div class="form-title-bar">
+              <span class="form-icon">💌</span>
+              <h2>소원 등록</h2>
+            </div>
+
+            <form id="wishForm" autocomplete="off">
+              <div class="form-row">
+                <!-- Person Selector -->
+                <div class="form-group flex-1">
+                  <label class="form-label" for="wishAuthor">소원 작성자</label>
+                  <div class="author-selector-group" id="authorSelectorGroup">
+                    <button type="button" class="btn-author-select active" data-author="user1" id="btnAuthor1">
+                      <span class="author-avatar" id="avatarPreview1"></span>
+                      <span class="author-name-text" id="namePreview1">R</span>
+                    </button>
+                    <button type="button" class="btn-author-select" data-author="user2" id="btnAuthor2">
+                      <span class="author-avatar" id="avatarPreview2"></span>
+                      <span class="author-name-text" id="namePreview2">D</span>
+                    </button>
+                  </div>
+                  <input type="hidden" id="wishAuthor" value="user1">
+                </div>
+
+                <!-- Registration Date Selector -->
+                <div class="form-group flex-1">
+                  <label class="form-label" for="wishCreatedAt">등록 날짜 설정</label>
+                  <input type="date" id="wishCreatedAt" class="styled-input" required>
+                </div>
+
+                <!-- Category/Type selector -->
+                <div class="form-group flex-1">
+                  <label class="form-label" for="wishCategory">소원 유형</label>
+                  <select id="wishCategory" class="styled-select">
+                    <option value="데이트 / 놀기 🎡">데이트 / 놀기 🎡</option>
+                    <option value="맛있는 음식 먹기 🍰">맛있는 음식 먹기 🍰</option>
+                    <option value="선물 / 갖고싶은 것 🎁">선물 / 갖고싶은 것 🎁</option>
+                    <option value="약속 / 부탁하기 🤙">약속 / 부탁하기 🤙</option>
+                    <option value="칭찬 / 힐링 💖">칭찬 / 힐링 💖</option>
+                    <option value="기타 자유 소원 ✨" selected>기타 자유 소원 ✨</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Wish Content -->
+              <div class="form-group">
+                <label class="form-label" for="wishContent">소원 내용</label>
+                <div class="textarea-wrapper">
+                  <textarea
+                    id="wishContent"
+                    class="styled-textarea"
+                    placeholder=""
+                    rows="3"
+                    maxlength="300"
+                  ></textarea>
+                  <div class="char-count"><span id="charCount">0</span>/300</div>
+                </div>
+              </div>
+
+              <!-- Form Submit Footer -->
+              <div class="form-footer">
+                <div class="expiration-info-hint">
+                  <span class="hint-icon">💡</span>
+                  <span>선택한 등록일로부터 <strong>30일 뒤</strong> 자동으로 소멸됩니다. (소멸 예정일: <strong id="calculatedExpiryPreview">-</strong>)</span>
+                </div>
+                <button type="submit" class="btn-submit-wish">
+                  <span>✨ 소원 등록하기</span>
+                </button>
+              </div>
+            </form>
+          </section>
+        </main>
+      </div>
+
+      <!-- ★ SCREEN: 소원 보기 ─────────────────────────────────── -->
+      <div id="screen-list" class="app-screen">
+        <main class="container">
+          <!-- Wish Filter & Controls -->
+          <section class="wish-controls-area">
+            <!-- Person Tabs -->
+            <div class="tabs-group" id="personTabs">
+              <button class="tab-btn active" data-person-filter="all">
+                <span>전체 보기</span>
+              </button>
+              <button class="tab-btn" data-person-filter="user1" id="filterTabUser1">
+                <span id="tabUser1Avatar">🐰</span> <span id="tabUser1Name">사용자 1의 소원</span>
+              </button>
+              <button class="tab-btn" data-person-filter="user2" id="filterTabUser2">
+                <span id="tabUser2Avatar">🐻</span> <span id="tabUser2Name">사용자 2의 소원</span>
+              </button>
+            </div>
+
+            <!-- Status Filters -->
+            <div class="status-filters" id="statusFilters">
+              <button class="filter-chip active" data-status-filter="all">전체 (<span id="chipAllCount">0</span>)</button>
+              <button class="filter-chip" data-status-filter="registered">진행 중 (<span id="chipRegCount">0</span>)</button>
+              <button class="filter-chip" data-status-filter="completed">완료 (<span id="chipCompCount">0</span>)</button>
+              <button class="filter-chip" data-status-filter="expired">소멸 (<span id="chipExpCount">0</span>)</button>
+            </div>
+          </section>
+
+          <!-- Wish Cards List -->
+          <section class="wish-list-section">
+            <div id="wishListContainer" class="wish-cards-grid">
+              <!-- Rendered via JS -->
+            </div>
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state hidden">
+              <div class="empty-icon">🎈</div>
+              <h3 class="empty-title">아직 등록된 소원이 없어요</h3>
+              <p class="empty-desc">위 입력창에서 첫 번째 소원을 빌어보세요!</p>
+            </div>
+          </section>
+        </main>
+      </div>
+
+    </div><!-- /#screenViewport -->
+  </div><!-- /#appShell -->
+
+  <!-- Profiles Modal -->
+  <div id="modalProfiles" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>👥 두 사람 프로필 설정</h3>
+        <button class="modal-close" data-close-modal="modalProfiles">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-guide">소원을 작성할 두 사람의 이름과 대표 아이콘을 설정해주세요.</p>
+        
+        <div class="profile-edit-box">
+          <div class="profile-box-title">👤 첫 번째 작성자 (R)</div>
+          <div class="profile-input-row">
+            <label>이름/닉네임:</label>
+            <input type="text" id="inputUser1Name" class="styled-input" maxlength="15" placeholder="예: R">
+          </div>
+          <div class="profile-input-row">
+            <label>대표 사진 / 아이콘:</label>
+            <div class="emoji-picker-row" id="user1EmojiRow">
+              <button type="button" class="emoji-opt active" data-emoji="avatar_r.png" title="R의 얼굴 사진">
+                <img src="avatar_r.png" class="avatar-img-circle" alt="R">
+              </button>
+              <button type="button" class="emoji-opt" data-emoji="🐰">🐰</button>
+              <button type="button" class="emoji-opt" data-emoji="🐱">🐱</button>
+              <button type="button" class="emoji-opt" data-emoji="🐶">🐶</button>
+              <button type="button" class="emoji-opt" data-emoji="🐦">🐦</button>
+              <button type="button" class="emoji-opt" data-emoji="🐸">🐸</button>
+              <button type="button" class="emoji-opt" data-emoji="🦊">🦊</button>
+              <button type="button" class="emoji-opt" data-emoji="🐥">🐥</button>
+              <button type="button" class="emoji-opt" data-emoji="⭐">⭐</button>
+              <button type="button" class="emoji-opt" data-emoji="💖">💖</button>
+              <button type="button" class="emoji-opt" data-emoji="🪐">🪐</button>
+              <button type="button" class="emoji-opt" data-emoji="🍀">🍀</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-edit-box">
+          <div class="profile-box-title">👤 두 번째 작성자 (D)</div>
+          <div class="profile-input-row">
+            <label>이름/닉네임:</label>
+            <input type="text" id="inputUser2Name" class="styled-input" maxlength="15" placeholder="예: D">
+          </div>
+          <div class="profile-input-row">
+            <label>대표 사진 / 아이콘:</label>
+            <div class="emoji-picker-row" id="user2EmojiRow">
+              <button type="button" class="emoji-opt active" data-emoji="avatar_d.png" title="D의 얼굴 사진">
+                <img src="avatar_d.png" class="avatar-img-circle" alt="D">
+              </button>
+              <button type="button" class="emoji-opt" data-emoji="🐻">🐻</button>
+              <button type="button" class="emoji-opt" data-emoji="🐼">🐼</button>
+              <button type="button" class="emoji-opt" data-emoji="🐨">🐨</button>
+              <button type="button" class="emoji-opt" data-emoji="🐦">🐦</button>
+              <button type="button" class="emoji-opt" data-emoji="🐸">🐸</button>
+              <button type="button" class="emoji-opt" data-emoji="🦁">🦁</button>
+              <button type="button" class="emoji-opt" data-emoji="🐧">🐧</button>
+              <button type="button" class="emoji-opt" data-emoji="⭐">⭐</button>
+              <button type="button" class="emoji-opt" data-emoji="💖">💖</button>
+              <button type="button" class="emoji-opt" data-emoji="🪐">🪐</button>
+              <button type="button" class="emoji-opt" data-emoji="🍀">🍀</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" id="btnSaveProfiles">저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase Sync Settings Modal -->
+  <div id="modalSync" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>☁️ Supabase 온라인 실시간 동기화 설정</h3>
+        <button class="modal-close" data-close-modal="modalSync">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="sync-desc-banner">
+          <p>
+            두 사람이 서로 다른 스마트폰이나 컴퓨터에서 같은 소원 목록을 실시간으로 함께 보려면
+            <strong>무료 Supabase 프로젝트</strong>를 연동하세요!
+          </p>
+          <small class="text-muted">연동하지 않아도 현재 브라우저(로컬스토리지)에 소원이 안전하게 저장됩니다.</small>
+        </div>
+
+        <div class="form-group mt-3">
+          <label class="form-label" for="supabaseUrl">Supabase Project URL</label>
+          <input type="text" id="supabaseUrl" class="styled-input" placeholder="https://xyzcompany.supabase.co">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="supabaseKey">Supabase Anon Key (공개 API 키)</label>
+          <input type="password" id="supabaseKey" class="styled-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+
+        <div class="sql-guide-accordion">
+          <details>
+            <summary>📌 Supabase 테이블 생성 SQL 보기 (처음 1회 실행 필요)</summary>
+            <div class="sql-box">
+              <pre id="sqlSnippet"><code>-- Supabase SQL Editor에 복사해서 실행(Run)하세요:
+CREATE TABLE IF NOT EXISTS wishes (
+  id TEXT PRIMARY KEY,
+  author_id TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  author_avatar TEXT NOT NULL,
+  category TEXT NOT NULL,
+  content TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'registered', -- registered, completed, expired
+  created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+  expires_at TIMESTAMPTZ NOT NULL,
+  completed_at TIMESTAMPTZ
+);
+
+-- 누구나 읽고 쓸 수 있는 RLS 정책
+ALTER TABLE wishes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read-write" ON wishes FOR ALL USING (true) WITH CHECK (true);
+
+-- 실시간 업데이트 활성화
+ALTER PUBLICATION supabase_realtime ADD TABLE wishes;
+</code></pre>
+              <button type="button" class="btn-copy-sql" id="btnCopySql">SQL 복사하기</button>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btnDisconnectSync">로컬 저장소 전용으로 변경</button>
+        <button class="btn-primary" id="btnSaveSync">동기화 연결 및 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+  <script>
+    // Register Service Worker (PWA)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.warn('SW registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
