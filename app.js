@@ -133,18 +133,15 @@ function navigateToScreen(screenId) {
   currentScreen = screenId;
 
   // Update header UI
-  const btnBack = document.getElementById('btnBack');
   const headerLogo = document.getElementById('headerLogo');
   const headerScreenTitle = document.getElementById('headerScreenTitle');
   const headerActions = document.querySelector('.header-actions');
 
   if (screenId === 'screen-home') {
-    if (btnBack) btnBack.classList.add('hidden');
     if (headerLogo) headerLogo.classList.remove('hidden');
     if (headerScreenTitle) { headerScreenTitle.classList.add('hidden'); headerScreenTitle.textContent = ''; }
     if (headerActions) headerActions.classList.remove('hidden');
   } else {
-    if (btnBack) btnBack.classList.remove('hidden');
     if (headerLogo) headerLogo.classList.add('hidden');
     if (headerScreenTitle) { headerScreenTitle.classList.remove('hidden'); headerScreenTitle.textContent = SCREEN_TITLES[screenId] || ''; }
     if (headerActions) headerActions.classList.add('hidden');
@@ -165,18 +162,12 @@ function goHome() {
 }
 
 function initNavigation() {
-  // Home nav buttons (및 화면 내 동적 이동 버튼) → navigate to screen (이벤트 위임)
+  // Home nav buttons, GNB tabs, and inline dynamic buttons → navigate to screen (delegation)
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-target-screen]');
     if (!btn) return;
     navigateToScreen(btn.getAttribute('data-target-screen'));
   });
-
-  // Back button → home
-  const btnBack = document.getElementById('btnBack');
-  if (btnBack) {
-    btnBack.addEventListener('click', goHome);
-  }
 }
 
 // ==========================================================

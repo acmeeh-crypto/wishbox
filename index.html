@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
 
@@ -29,11 +29,6 @@
     <!-- ── SHARED HEADER (항상 표시) ─────────────────────────── -->
     <header class="app-header" id="appHeader">
       <div class="header-inner">
-        <!-- 뒤로가기 버튼 (홈 화면에서는 숨김) -->
-        <button id="btnBack" class="btn-back hidden" title="홈으로">
-          ← 뒤로
-        </button>
-
         <!-- 로고 (홈 화면에서만 표시) -->
         <div class="logo-area" id="headerLogo">
           <div class="logo-brand">
@@ -354,6 +349,10 @@
     <!-- ── BOTTOM GNB (하단 네비게이션 바) ────────────────────────── -->
     <nav class="bottom-gnb" id="bottomGnb" aria-label="하단 네비게이션">
       <div class="bottom-gnb-inner">
+        <button type="button" class="gnb-tab-btn active" data-target-screen="screen-home">
+          <span class="gnb-icon">🏠</span>
+          <span class="gnb-label">처음으로</span>
+        </button>
         <button type="button" class="gnb-tab-btn" data-target-screen="screen-stats">
           <span class="gnb-icon">📊</span>
           <span class="gnb-label">소원 현황</span>
@@ -525,7 +524,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE wishes;
   <!-- Toast Notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
   <script>
     // Register Service Worker (PWA) with immediate update handling
     if ('serviceWorker' in navigator) {
