@@ -733,15 +733,15 @@ body {
 /* 4. Wish Cards Grid & Illustrated Card */
 .wish-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .wish-card {
   background: var(--bg-card);
   border: 1.5px solid var(--border-card);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
@@ -749,6 +749,7 @@ body {
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
+  min-width: 0;
 }
 
 .wish-card:hover {
@@ -773,33 +774,41 @@ body {
 .wish-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 12px;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
 .author-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: var(--bg-subtle);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-full);
-  padding: 4px 10px;
-  font-size: 0.78rem;
+  padding: 2px 7px;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--text-main);
+  white-space: nowrap;
+}
+
+.author-badge .avatar-img-circle {
+  width: 18px;
+  height: 18px;
 }
 
 .stage-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 2px;
+  padding: 2px 6px;
   border-radius: var(--radius-full);
-  font-size: 0.75rem;
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .stage-badge.registered {
@@ -821,20 +830,23 @@ body {
 }
 
 .wish-category-tag {
-  font-size: 0.75rem;
+  font-size: 0.62rem;
   color: #9ca3af;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wish-content-text {
-  font-size: 0.96rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-main);
-  line-height: 1.55;
+  line-height: 1.45;
   white-space: pre-wrap;
   word-break: break-word;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
   flex: 1;
   letter-spacing: -0.01em;
 }
@@ -933,21 +945,21 @@ body {
 /* 30-Day Countdown Box */
 .countdown-box {
   background: var(--bg-subtle);
-  border: 1.5px solid var(--border-card);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  margin-bottom: 14px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  margin-bottom: 8px;
 }
 
 .countdown-dday-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .countdown-dday-badge {
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   font-weight: 800;
   line-height: 1;
   font-feature-settings: 'tnum';
@@ -966,20 +978,13 @@ body {
   color: var(--stage-expired-text);
 }
 
-.countdown-timer-live {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-feature-settings: 'tnum';
-}
-
 .progress-bar-bg {
   width: 100%;
-  height: 6px;
+  height: 4px;
   background: #e5e7eb;
   border-radius: var(--radius-full);
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .progress-bar-fill {
@@ -1005,38 +1010,43 @@ body {
 .dates-meta-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.72rem;
+  font-size: 0.58rem;
   color: var(--text-light);
   font-feature-settings: 'tnum';
+  flex-wrap: wrap;
+  gap: 2px;
 }
 
 /* Card Action Buttons */
 .card-actions-row {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .btn-card-action {
   flex: 1;
-  padding: 8px 12px;
+  min-width: 0;
+  padding: 5px 6px;
   border-radius: var(--radius-full);
   font-family: var(--font-family);
-  font-size: 0.82rem;
+  font-size: 0.62rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .btn-complete-wish {
   background: var(--stage-completed-bg);
-  border: 1.5px solid var(--stage-completed-border);
+  border: 1px solid var(--stage-completed-border);
   color: var(--stage-completed-text);
 }
 
@@ -1047,7 +1057,7 @@ body {
 
 .btn-reopen-wish {
   background: var(--stage-registered-bg);
-  border: 1.5px solid var(--stage-registered-border);
+  border: 1px solid var(--stage-registered-border);
   color: var(--stage-registered-text);
 }
 
@@ -1058,13 +1068,14 @@ body {
 .btn-edit-wish,
 .btn-delete-wish {
   background: none;
-  border: 1.5px solid transparent;
+  border: 1px solid transparent;
   color: var(--text-light);
-  padding: 7px 10px;
+  padding: 4px 6px;
   border-radius: var(--radius-full);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: 0.68rem;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .btn-edit-wish:hover {
@@ -1442,7 +1453,8 @@ body {
   }
 
   .wish-cards-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .active-count-highlight {

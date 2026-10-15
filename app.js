@@ -760,16 +760,13 @@ function createWishCardElement(wish) {
     countdownHeaderContent = `
       <div class="countdown-dday-row">
         <span class="countdown-dday-badge">${timeInfo.dDayStr}</span>
-        <span class="countdown-timer-live">${timeInfo.timerStr}</span>
       </div>
     `;
     progressBarWidth = `${timeInfo.percentElapsed}%`;
   } else if (wish.status === 'completed') {
-    const completedDateStr = formatDate(wish.completed_at || new Date().toISOString());
     countdownHeaderContent = `
       <div class="countdown-dday-row">
         <span class="countdown-dday-badge">소원 이룸! 💖</span>
-        <span class="countdown-timer-live">${completedDateStr} 달성</span>
       </div>
     `;
     progressBarWidth = '100%';
@@ -778,7 +775,6 @@ function createWishCardElement(wish) {
     countdownHeaderContent = `
       <div class="countdown-dday-row">
         <span class="countdown-dday-badge">기한 종료 💨</span>
-        <span class="countdown-timer-live">30일 만료되어 소멸</span>
       </div>
     `;
     progressBarWidth = '100%';

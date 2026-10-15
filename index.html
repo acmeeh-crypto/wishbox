@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 
@@ -61,15 +61,6 @@
       <!-- ★ HOME SCREEN ──────────────────────────────────────── -->
       <div id="screen-home" class="app-screen active">
         <div class="home-content">
-          <!-- 홈 히어로 영역 -->
-          <div class="home-hero">
-            <div class="home-logo-wrap">
-              <img src="wishbox_transparent.png" alt="소원함" class="home-hero-img">
-            </div>
-            <h2 class="home-title">우리 둘의 소원함</h2>
-            <p class="home-subtitle">시즌 2</p>
-          </div>
-
           <!-- 네비게이션 버튼 4개 -->
           <div class="home-nav-buttons">
             <button class="home-nav-btn" data-target-screen="screen-stats">
@@ -102,7 +93,6 @@
           <section class="stats-card">
             <div class="stats-header">
               <div class="stats-title-group">
-                <span class="badge-pill">📊 소원 현황판</span>
                 <span class="stats-caption">획득한 소원은 획득일로부터 30일 뒤 소멸</span>
               </div>
             </div>
@@ -191,11 +181,6 @@
       <div id="screen-acquire" class="app-screen">
         <main class="container">
           <section class="wish-form-card">
-            <div class="form-title-bar">
-              <span class="form-icon">✨</span>
-              <h2>소원 획득</h2>
-            </div>
-
             <div class="form-group">
               <label class="form-label">소원을 획득한 사람</label>
               <div class="author-selector-group" id="acquireAuthorGroup">
@@ -232,11 +217,6 @@
       <div id="screen-register" class="app-screen">
         <main class="container">
           <section class="wish-form-card">
-            <div class="form-title-bar">
-              <span class="form-icon">💌</span>
-              <h2>소원 등록</h2>
-            </div>
-
             <form id="wishForm" autocomplete="off">
               <!-- Row 1: Person Selector -->
               <div class="form-row form-row-single">
@@ -524,7 +504,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE wishes;
   <!-- Toast Notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
   <script>
     // Register Service Worker (PWA) with immediate update handling
     if ('serviceWorker' in navigator) {
