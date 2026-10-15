@@ -55,6 +55,22 @@
   --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
 }
 
+html {
+  font-size: 24px; /* 1.5배 글자 크기 기준 */
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 21px; /* 모바일 환경 최적화 */
+  }
+}
+
+@media (max-width: 380px) {
+  html {
+    font-size: 19px;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -69,7 +85,7 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   min-height: 100vh;
-  padding-bottom: 60px;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Header */
@@ -84,7 +100,7 @@ body {
 }
 
 .header-inner {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -187,7 +203,7 @@ body {
 
 /* Layout Container */
 .container {
-  max-width: 900px;
+  max-width: 960px;
   margin: 24px auto 0;
   padding: 0 16px;
   display: flex;
@@ -276,7 +292,7 @@ body {
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-card);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -288,10 +304,11 @@ body {
 }
 
 .stat-icon {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   background: #ffffff;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -454,8 +471,8 @@ body {
 }
 
 .avatar-img-circle {
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
   display: inline-block;
@@ -464,36 +481,36 @@ body {
 }
 
 .author-badge .avatar-img-circle {
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
 }
 
 .btn-author-select .avatar-img-circle {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border: 1.5px solid #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .user-stat-tag .avatar-img-circle {
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
 }
 
 .tab-btn .avatar-img-circle {
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
 }
 
 .emoji-opt img.avatar-img-circle {
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
 }
 
 .styled-select,
 .styled-input {
   width: 100%;
-  padding: 11px 14px;
+  padding: 13px 16px;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-card);
   background: var(--bg-subtle);
@@ -1604,5 +1621,401 @@ body {
 
   .home-nav-icon {
     font-size: 1.3rem;
+  }
+}
+
+/* ==========================================================
+   소원 획득 단계 (램프) / 사용자별 현황판
+   ========================================================== */
+:root {
+  --stage-acquired-bg: #fffbeb;
+  --stage-acquired-text: #b45309;
+  --stage-acquired-border: #fde68a;
+}
+
+/* 현황판: 사용자별 블록 */
+.user-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.user-stats-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-stats-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.user-stats-avatar {
+  font-size: 1.3rem;
+  display: inline-flex;
+}
+
+.user-stats-avatar .avatar-img-circle {
+  width: 38px;
+  height: 38px;
+}
+
+.stat-item.acquired .stat-value { color: var(--stage-acquired-text); }
+
+/* 소원 등록: 작성자 버튼의 소원 개수 */
+.lamp-count-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  background: var(--stage-acquired-bg);
+  color: var(--stage-acquired-text);
+  border: 1px solid var(--stage-acquired-border);
+}
+
+/* 소원 등록: 사용될 소원 안내 */
+.register-lamp-info {
+  flex: 1 1 260px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--stage-acquired-bg);
+  border: 1.5px solid var(--stage-acquired-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.register-lamp-info.empty {
+  background: var(--bg-subtle);
+  border-color: var(--border-card);
+}
+
+.btn-goto-acquire {
+  border: 1.5px solid var(--stage-acquired-border);
+  background: #ffffff;
+  color: var(--stage-acquired-text);
+  font-family: var(--font-family);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.btn-goto-acquire:hover {
+  background: var(--stage-acquired-bg);
+}
+
+.btn-submit-wish:disabled {
+  background: #d1d5db;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 소원 획득: 소원 보드 */
+.lamp-board {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lamp-user-section {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.lamp-user-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.lamp-user-avatar {
+  display: inline-flex;
+  font-size: 1.2rem;
+}
+
+.lamp-user-name {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.lamp-count-pill {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: var(--stage-acquired-bg);
+  color: var(--stage-acquired-text);
+  border: 1px solid var(--stage-acquired-border);
+}
+
+.lamp-count-pill.muted {
+  background: var(--bg-subtle);
+  color: var(--text-light);
+  border-color: var(--border-card);
+}
+
+.lamp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.lamp-empty {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.lamp-card {
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 70%);
+  border: 1.5px solid var(--stage-acquired-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.lamp-card.next-up {
+  border-color: #f59e0b;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+}
+
+.lamp-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.lamp-order {
+  color: var(--stage-acquired-text);
+}
+
+.lamp-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+}
+
+.lamp-owner .avatar-img-circle {
+  width: 24px;
+  height: 24px;
+}
+
+.lamp-dday {
+  background: #f59e0b;
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-feature-settings: 'tnum';
+}
+
+.lamp-dday.expired {
+  background: var(--stage-expired-text);
+}
+
+.lamp-icon {
+  font-size: 2.5rem;
+  text-align: center;
+  line-height: 1.2;
+  filter: drop-shadow(0 3px 6px rgba(245, 158, 11, 0.35));
+}
+
+.lamp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lamp-field-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.lamp-date-input {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-card);
+  background: #ffffff;
+  font-family: var(--font-family);
+  font-size: 0.84rem;
+  color: var(--text-main);
+  outline: none;
+}
+
+.lamp-date-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.lamp-expiry-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--stage-acquired-text);
+  font-feature-settings: 'tnum';
+}
+
+.lamp-delete-btn {
+  margin-top: 2px;
+  border: 1.5px solid var(--border-card);
+  background: #ffffff;
+  color: var(--text-muted);
+  font-family: var(--font-family);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.lamp-delete-btn:hover {
+  border-color: #fca5a5;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+/* 소멸된 램프: 흐리게 */
+.lamp-expired-section {
+  background: var(--bg-subtle);
+}
+
+.lamp-card.expired {
+  background: #f8fafc;
+  border-color: var(--border-card);
+  opacity: 0.6;
+}
+
+.lamp-card.expired .lamp-icon {
+  filter: grayscale(1);
+}
+
+.lamp-card.expired .lamp-expiry-text {
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+@media (max-width: 640px) {
+  .lamp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================================
+   Bottom GNB (하단 고정 네비게이션 바)
+   ========================================================== */
+.bottom-gnb {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1.5px solid var(--border-card);
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.05);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-gnb-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 66px;
+  padding: 0 6px;
+}
+
+.gnb-tab-btn {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.gnb-icon {
+  font-size: 1.15rem;
+  line-height: 1.2;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gnb-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.gnb-tab-btn:hover {
+  color: var(--color-primary);
+}
+
+.gnb-tab-btn:hover .gnb-icon {
+  transform: translateY(-2px);
+}
+
+.gnb-tab-btn.active {
+  color: var(--color-primary);
+}
+
+.gnb-tab-btn.active .gnb-icon {
+  transform: scale(1.18);
+  filter: drop-shadow(0 2px 6px rgba(255, 101, 132, 0.35));
+}
+
+.gnb-tab-btn.active .gnb-label {
+  font-weight: 800;
+  color: #e11d48;
+}
+
+@media (max-width: 480px) {
+  .bottom-gnb-inner {
+    height: 62px;
+  }
+  .gnb-icon {
+    font-size: 1.1rem;
+  }
+  .gnb-label {
+    font-size: 0.6rem;
   }
 }

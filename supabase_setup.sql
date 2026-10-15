@@ -12,11 +12,17 @@ CREATE TABLE IF NOT EXISTS wishes (
   author_avatar TEXT NOT NULL,
   category TEXT NOT NULL,
   content TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'registered', -- registered(등록), completed(완료), expired(소멸)
+  status TEXT NOT NULL DEFAULT 'registered', -- acquired(획득), registered(등록), completed(완료), expired(소멸)
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+  acquired_at TIMESTAMPTZ,
+  registered_at TIMESTAMPTZ,
   expires_at TIMESTAMPTZ NOT NULL,
   completed_at TIMESTAMPTZ
 );
+
+-- 기존 테이블이 이미 있을 경우 새 컬럼 추가
+ALTER TABLE wishes ADD COLUMN IF NOT EXISTS acquired_at TIMESTAMPTZ;
+ALTER TABLE wishes ADD COLUMN IF NOT EXISTS registered_at TIMESTAMPTZ;
 
 -- 2. 누구나 읽고 쓸 수 있는 RLS (Row Level Security) 설정
 ALTER TABLE wishes ENABLE ROW LEVEL SECURITY;

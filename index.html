@@ -75,11 +75,16 @@
             <p class="home-subtitle">시즌 2</p>
           </div>
 
-          <!-- 네비게이션 버튼 3개 -->
+          <!-- 네비게이션 버튼 4개 -->
           <div class="home-nav-buttons">
             <button class="home-nav-btn" data-target-screen="screen-stats">
               <span class="home-nav-icon">📊</span>
               <span class="home-nav-label">소원 현황판</span>
+              <span class="home-nav-arrow">→</span>
+            </button>
+            <button class="home-nav-btn" data-target-screen="screen-acquire">
+              <span class="home-nav-icon">✨</span>
+              <span class="home-nav-label">소원 획득</span>
               <span class="home-nav-arrow">→</span>
             </button>
             <button class="home-nav-btn" data-target-screen="screen-register">
@@ -103,61 +108,128 @@
             <div class="stats-header">
               <div class="stats-title-group">
                 <span class="badge-pill">📊 소원 현황판</span>
-                <span class="stats-caption">등록된 소원은 30일 동안 유지됩니다</span>
-              </div>
-              <div class="active-count-highlight">
-                <span class="count-label">현재 진행 중인 소원</span>
-                <span class="count-number" id="statActive">0</span>
-                <span class="count-unit">개</span>
+                <span class="stats-caption">획득한 소원은 획득일로부터 30일 뒤 소멸됩니다</span>
               </div>
             </div>
 
-            <div class="stats-grid">
-              <div class="stat-item total">
-                <div class="stat-icon">📝</div>
-                <div class="stat-info">
-                  <span class="stat-name">전체 등록</span>
-                  <strong class="stat-value" id="statTotal">0</strong>
+            <!-- 사용자별 단계 현황 -->
+            <div class="user-stats-list">
+              <div class="user-stats-block">
+                <div class="user-stats-head">
+                  <span class="user-stats-avatar" id="user1StatAvatar"></span>
+                  <span class="user-stats-name" id="user1StatName">R</span>
+                </div>
+                <div class="stats-grid">
+                  <div class="stat-item acquired">
+                    <div class="stat-icon">✨</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 획득</span>
+                      <strong class="stat-value" id="user1Stat_acquired">0</strong>
+                    </div>
+                  </div>
+                  <div class="stat-item active">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 등록</span>
+                      <strong class="stat-value" id="user1Stat_registered">0</strong>
+                    </div>
+                  </div>
+                  <div class="stat-item completed">
+                    <div class="stat-icon">🎉</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 완료</span>
+                      <strong class="stat-value" id="user1Stat_completed">0</strong>
+                    </div>
+                  </div>
+                  <div class="stat-item expired">
+                    <div class="stat-icon">💨</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 소멸</span>
+                      <strong class="stat-value" id="user1Stat_expired">0</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="stat-item active">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-info">
-                  <span class="stat-name">등록(진행 중)</span>
-                  <strong class="stat-value" id="statActiveSmall">0</strong>
-                </div>
-              </div>
-              <div class="stat-item completed">
-                <div class="stat-icon">🎉</div>
-                <div class="stat-info">
-                  <span class="stat-name">이룬 소원(완료)</span>
-                  <strong class="stat-value" id="statCompleted">0</strong>
-                </div>
-              </div>
-              <div class="stat-item expired">
-                <div class="stat-icon">💨</div>
-                <div class="stat-info">
-                  <span class="stat-name">소멸된 소원</span>
-                  <strong class="stat-value" id="statExpired">0</strong>
-                </div>
-              </div>
-            </div>
 
-            <!-- User breakdown comparison bar -->
-            <div class="user-comparison-bar">
-              <div class="user-stat-tag" id="user1StatTag">
-                <span class="user-avatar-mini" id="user1MiniAvatar">🐰</span>
-                <span class="user-name-mini" id="user1StatName">사용자 1</span>:
-                <span class="user-count-mini" id="user1StatCount">진행 0 · 완료 0</span>
-              </div>
-              <div class="user-stat-divider">|</div>
-              <div class="user-stat-tag" id="user2StatTag">
-                <span class="user-avatar-mini" id="user2MiniAvatar">🐻</span>
-                <span class="user-name-mini" id="user2StatName">사용자 2</span>:
-                <span class="user-count-mini" id="user2StatCount">진행 0 · 완료 0</span>
+              <div class="user-stats-block">
+                <div class="user-stats-head">
+                  <span class="user-stats-avatar" id="user2StatAvatar"></span>
+                  <span class="user-stats-name" id="user2StatName">D</span>
+                </div>
+                <div class="stats-grid">
+                  <div class="stat-item acquired">
+                    <div class="stat-icon">✨</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 획득</span>
+                      <strong class="stat-value" id="user2Stat_acquired">0</strong>
+                    </div>
+                  </div>
+                  <div class="stat-item active">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 등록</span>
+                      <strong class="stat-value" id="user2Stat_registered">0</strong>
+                    </div>
+                  </div>
+                  <div class="stat-item completed">
+                    <div class="stat-icon">🎉</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 완료</span>
+                      <strong class="stat-value" id="user2Stat_completed">0</strong>
+                    </div>
+                  </div>
+                  <div class="stat-item expired">
+                    <div class="stat-icon">💨</div>
+                    <div class="stat-info">
+                      <span class="stat-name">소원 소멸</span>
+                      <strong class="stat-value" id="user2Stat_expired">0</strong>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
+        </main>
+      </div>
+
+      <!-- ★ SCREEN: 소원 획득 ─────────────────────────────────── -->
+      <div id="screen-acquire" class="app-screen">
+        <main class="container">
+          <section class="wish-form-card">
+            <div class="form-title-bar">
+              <span class="form-icon">✨</span>
+              <h2>소원 획득</h2>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">소원을 획득한 사람</label>
+              <div class="author-selector-group" id="acquireAuthorGroup">
+                <button type="button" class="btn-author-select active" data-author="user1">
+                  <span class="author-avatar" id="acquireUser1Avatar"></span>
+                  <span class="author-name-text" id="acquireUser1Name">R</span>
+                </button>
+                <button type="button" class="btn-author-select" data-author="user2">
+                  <span class="author-avatar" id="acquireUser2Avatar"></span>
+                  <span class="author-name-text" id="acquireUser2Name">D</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <div class="expiration-info-hint">
+                <span class="hint-icon">💡</span>
+                <span>소원마다 <strong>획득 날짜</strong>를 선택하면 <strong>30일 뒤 소멸 날짜</strong>가 자동 계산됩니다.</span>
+              </div>
+              <button type="button" class="btn-submit-wish" id="btnAcquireLamp">
+                <span>✨ 소원 +</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- 사용자별 보유 소원 / 소멸된 소원 -->
+          <div id="lampBoard" class="lamp-board">
+            <!-- Rendered via JS -->
+          </div>
         </main>
       </div>
 
@@ -179,26 +251,22 @@
                     <button type="button" class="btn-author-select active" data-author="user1" id="btnAuthor1">
                       <span class="author-avatar" id="avatarPreview1"></span>
                       <span class="author-name-text" id="namePreview1">R</span>
+                      <span class="lamp-count-badge" id="lampCountBadge1">✨ 0개</span>
                     </button>
                     <button type="button" class="btn-author-select" data-author="user2" id="btnAuthor2">
                       <span class="author-avatar" id="avatarPreview2"></span>
                       <span class="author-name-text" id="namePreview2">D</span>
+                      <span class="lamp-count-badge" id="lampCountBadge2">✨ 0개</span>
                     </button>
                   </div>
                   <input type="hidden" id="wishAuthor" value="user1">
                 </div>
               </div>
 
-              <!-- Row 2: Registration Date & Category (50:50 Split) -->
-              <div class="form-row form-row-split">
-                <!-- Registration Date Selector -->
-                <div class="form-group flex-half">
-                  <label class="form-label" for="wishCreatedAt">등록 날짜</label>
-                  <input type="date" id="wishCreatedAt" class="styled-input" required>
-                </div>
-
+              <!-- Row 2: Category (등록일은 오늘로 자동 기록, 소멸일은 사용될 램프 기준) -->
+              <div class="form-row form-row-single">
                 <!-- Category/Type selector -->
-                <div class="form-group flex-half">
+                <div class="form-group flex-1">
                   <label class="form-label" for="wishCategory">소원 유형</label>
                   <select id="wishCategory" class="styled-select">
                     <option value="데이트 / 놀기 🎡">데이트 / 놀기 🎡</option>
@@ -228,11 +296,9 @@
 
               <!-- Form Submit Footer -->
               <div class="form-footer">
-                <div class="expiration-info-hint">
-                  <span class="hint-icon">💡</span>
-                  <span>선택한 등록일로부터 <strong>30일 뒤</strong> 자동으로 소멸됩니다. (소멸 예정일: <strong id="calculatedExpiryPreview">-</strong>)</span>
-                </div>
-                <button type="submit" class="btn-submit-wish">
+                <!-- 사용될 램프 안내 (JS로 렌더링) -->
+                <div id="registerLampInfo" class="register-lamp-info"></div>
+                <button type="submit" class="btn-submit-wish" id="btnSubmitWish">
                   <span>✨ 소원 등록하기</span>
                 </button>
               </div>
@@ -284,6 +350,29 @@
       </div>
 
     </div><!-- /#screenViewport -->
+
+    <!-- ── BOTTOM GNB (하단 네비게이션 바) ────────────────────────── -->
+    <nav class="bottom-gnb" id="bottomGnb" aria-label="하단 네비게이션">
+      <div class="bottom-gnb-inner">
+        <button type="button" class="gnb-tab-btn" data-target-screen="screen-stats">
+          <span class="gnb-icon">📊</span>
+          <span class="gnb-label">소원 현황</span>
+        </button>
+        <button type="button" class="gnb-tab-btn" data-target-screen="screen-acquire">
+          <span class="gnb-icon">✨</span>
+          <span class="gnb-label">소원 획득</span>
+        </button>
+        <button type="button" class="gnb-tab-btn" data-target-screen="screen-register">
+          <span class="gnb-icon">💌</span>
+          <span class="gnb-label">소원 등록</span>
+        </button>
+        <button type="button" class="gnb-tab-btn" data-target-screen="screen-list">
+          <span class="gnb-icon">📜</span>
+          <span class="gnb-label">소원 보기</span>
+        </button>
+      </div>
+    </nav>
+
   </div><!-- /#appShell -->
 
   <!-- Profiles Modal -->
@@ -394,11 +483,17 @@ CREATE TABLE IF NOT EXISTS wishes (
   author_avatar TEXT NOT NULL,
   category TEXT NOT NULL,
   content TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'registered', -- registered, completed, expired
+  status TEXT NOT NULL DEFAULT 'registered', -- acquired, registered, completed, expired
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+  acquired_at TIMESTAMPTZ,
+  registered_at TIMESTAMPTZ,
   expires_at TIMESTAMPTZ NOT NULL,
   completed_at TIMESTAMPTZ
 );
+
+-- 기존 테이블이 이미 있을 경우 새 컬럼 추가
+ALTER TABLE wishes ADD COLUMN IF NOT EXISTS acquired_at TIMESTAMPTZ;
+ALTER TABLE wishes ADD COLUMN IF NOT EXISTS registered_at TIMESTAMPTZ;
 
 -- 누구나 읽고 쓸 수 있는 RLS 정책
 ALTER TABLE wishes ENABLE ROW LEVEL SECURITY;
