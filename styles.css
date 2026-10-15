@@ -1007,14 +1007,20 @@ body {
   width: 100% !important;
 }
 
-.dates-meta-row {
+.dates-meta-list {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 2px;
   font-size: 0.58rem;
   color: var(--text-light);
+  text-align: left;
   font-feature-settings: 'tnum';
-  flex-wrap: wrap;
-  gap: 2px;
+  margin-top: 4px;
+}
+
+.date-meta-item {
+  white-space: nowrap;
+  text-align: left;
 }
 
 /* Card Action Buttons */
@@ -1663,14 +1669,15 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  padding: 9px 14px;
+  padding: 11px 16px;
   background: var(--bg-card);
   border: 1.5px solid var(--border-card);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-family: var(--font-family);
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--text-main);
   box-shadow: var(--shadow-sm);

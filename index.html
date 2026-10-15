@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 
@@ -64,22 +64,18 @@
           <!-- 네비게이션 버튼 4개 -->
           <div class="home-nav-buttons">
             <button class="home-nav-btn" data-target-screen="screen-stats">
-              <span class="home-nav-icon">📊</span>
               <span class="home-nav-label">소원 현황판</span>
               <span class="home-nav-arrow">→</span>
             </button>
             <button class="home-nav-btn" data-target-screen="screen-acquire">
-              <span class="home-nav-icon">✨</span>
               <span class="home-nav-label">소원 획득</span>
               <span class="home-nav-arrow">→</span>
             </button>
             <button class="home-nav-btn" data-target-screen="screen-register">
-              <span class="home-nav-icon">💌</span>
               <span class="home-nav-label">소원 등록</span>
               <span class="home-nav-arrow">→</span>
             </button>
             <button class="home-nav-btn" data-target-screen="screen-list">
-              <span class="home-nav-icon">📜</span>
               <span class="home-nav-label">소원 보기</span>
               <span class="home-nav-arrow">→</span>
             </button>
@@ -504,7 +500,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE wishes;
   <!-- Toast Notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
   <script>
     // Register Service Worker (PWA) with immediate update handling
     if ('serviceWorker' in navigator) {

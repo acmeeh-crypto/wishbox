@@ -780,12 +780,18 @@ function createWishCardElement(wish) {
     progressBarWidth = '100%';
   }
 
-  // Action Button (진행 중인 소원만 완료 처리 가능)
+  // Action Button (소원 완료 및 완료 취소)
   let actionButtonHtml = '';
   if (wish.status === 'registered') {
     actionButtonHtml = `
-      <button class="btn-card-action btn-complete-wish" data-action="complete" data-id="${wish.id}">
-        <span>✔️ 소원 이루기(완료)</span>
+      <button class="btn-card-action btn-complete-wish" data-action="toggle-complete" data-id="${wish.id}">
+        <span>✔️ 소원 완료</span>
+      </button>
+    `;
+  } else if (wish.status === 'completed') {
+    actionButtonHtml = `
+      <button class="btn-card-action btn-reopen-wish" data-action="toggle-complete" data-id="${wish.id}">
+        <span>↩️ 완료 취소</span>
       </button>
     `;
   }
@@ -839,9 +845,10 @@ function createWishCardElement(wish) {
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" style="width: ${progressBarWidth};"></div>
         </div>
-        <div class="dates-meta-row">
-          <span>획득: ${acquiredDateStr} · 등록: ${registeredDateStr}</span>
-          <span>소멸 예정: ${expiresDateStr}</span>
+        <div class="dates-meta-list">
+          <div class="date-meta-item">획득: ${acquiredDateStr}</div>
+          <div class="date-meta-item">등록: ${registeredDateStr}</div>
+          <div class="date-meta-item">소멸 예정: ${expiresDateStr}</div>
         </div>
       </div>
 
@@ -1157,17 +1164,25 @@ function handleCancelEditWish() {
   renderWishes();
 }
 
-async function handleCompleteWish(wishId) {
+async function handleToggleCompleteWish(wishId) {
   const wish = appState.wishes.find(w => w.id === wishId);
   if (!wish) return;
 
-  wish.status = 'completed';
-  wish.completed_at = new Date().toISOString();
-
-  await persistUpdate(wishId, { status: 'completed', completed_at: wish.completed_at });
-
-  renderAll();
-  showToast('소원을 이루었습니다! 축하합니다 🎉');
+  if (wish.status === 'completed') {
+    // Reopen / cancel completion
+    wish.status = 'registered';
+    wish.completed_at = null;
+    await persistUpdate(wishId, { status: 'registered', completed_at: null });
+    renderAll();
+    showToast('소원 완료가 취소되었습니다. ↩️');
+  } else if (wish.status === 'registered') {
+    // Complete
+    wish.status = 'completed';
+    wish.completed_at = new Date().toISOString();
+    await persistUpdate(wishId, { status: 'completed', completed_at: wish.completed_at });
+    renderAll();
+    showToast('소원을 이루었습니다! 축하합니다 🎉');
+  }
 }
 
 async function handleDeleteWish(wishId) {
@@ -1216,8 +1231,8 @@ function initEventHandlers() {
     const action = target.getAttribute('data-action');
     const wishId = target.getAttribute('data-id');
 
-    if (action === 'complete') {
-      handleCompleteWish(wishId);
+    if (action === 'toggle-complete' || action === 'complete') {
+      handleToggleCompleteWish(wishId);
     } else if (action === 'delete') {
       handleDeleteWish(wishId);
     } else if (action === 'edit') {
