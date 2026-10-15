@@ -132,6 +132,12 @@ function navigateToScreen(screenId) {
 
   currentScreen = screenId;
 
+  // Toggle home screen scroll lock
+  const isHome = screenId === 'screen-home';
+  document.documentElement.classList.toggle('is-home-screen', isHome);
+  document.body.classList.toggle('is-home-screen', isHome);
+  window.scrollTo(0, 0);
+
   // Update header UI
   const headerLogo = document.getElementById('headerLogo');
   const headerScreenTitle = document.getElementById('headerScreenTitle');
@@ -162,6 +168,36 @@ function goHome() {
 }
 
 function initNavigation() {
+  const isHome = currentScreen === 'screen-home';
+  document.documentElement.classList.toggle('is-home-screen', isHome);
+  document.body.classList.toggle('is-home-screen', isHome);
+
+  // Prevent vertical rubber-band scrolling on home screen
+  const homeScreen = document.getElementById('screen-home');
+  if (homeScreen) {
+    homeScreen.addEventListener('touchmove', (e) => {
+      if (currentScreen === 'screen-home') {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  }
+
+  const appHeader = document.getElementById('appHeader');
+  if (appHeader) {
+    appHeader.addEventListener('touchmove', (e) => {
+      if (currentScreen === 'screen-home') {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  }
+
+  const bottomGnb = document.querySelector('.bottom-gnb');
+  if (bottomGnb) {
+    bottomGnb.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+  }
+
   // Home nav buttons, GNB tabs, and inline dynamic buttons → navigate to screen (delegation)
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-target-screen]');
