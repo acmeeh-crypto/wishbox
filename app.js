@@ -5,10 +5,10 @@
 // 30 Days in Milliseconds
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
-// Default Profiles (R & D with Photo Avatars)
+// Default Profiles (R & D with Emoji Avatars)
 const DEFAULT_PROFILES = {
-  user1: { name: 'R', avatar: 'avatar_r.png' },
-  user2: { name: 'D', avatar: 'avatar_d.png' }
+  user1: { name: 'R', avatar: '🐰' },
+  user2: { name: 'D', avatar: '🐻' }
 };
 
 // Global State
@@ -196,8 +196,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Helper: Render avatar as img tag if image path, or text/emoji
 function renderAvatarHtml(avatarValue, nameStr = '') {
-  if (!avatarValue) return '👤';
-  if (avatarValue.endsWith('.png') || avatarValue.endsWith('.jpg') || avatarValue.includes('avatar_')) {
+  if (!avatarValue) return '✨';
+  // Fallbacks if previous avatar files were saved in storage
+  if (avatarValue === 'avatar_r.png') return '🐰';
+  if (avatarValue === 'avatar_d.png') return '🐻';
+  if (
+    avatarValue.startsWith('data:image/') ||
+    avatarValue.endsWith('.png') ||
+    avatarValue.endsWith('.jpg') ||
+    avatarValue.endsWith('.jpeg') ||
+    avatarValue.endsWith('.webp')
+  ) {
     return `<img src="${avatarValue}" class="avatar-img-circle" alt="${escapeHtml(nameStr || '아바타')}">`;
   }
   return escapeHtml(avatarValue);
@@ -267,14 +276,18 @@ function loadProfilesFromStorage() {
   if (saved) {
     try {
       appState.profiles = JSON.parse(saved);
-      // Migrate old defaults to R & D with photos if user hasn't explicitly customized
+      // Migrate old defaults to R & D with emojis if user hasn't explicitly customized
       if (appState.profiles.user1.name === '로빈' || appState.profiles.user1.name === '사용자 1' || appState.profiles.user1.name === '대원 1') {
         appState.profiles.user1.name = 'R';
-        appState.profiles.user1.avatar = 'avatar_r.png';
+      }
+      if (appState.profiles.user1.avatar === 'avatar_r.png') {
+        appState.profiles.user1.avatar = '🐰';
       }
       if (appState.profiles.user2.name === '연주' || appState.profiles.user2.name === '사용자 2' || appState.profiles.user2.name === '대원 2') {
         appState.profiles.user2.name = 'D';
-        appState.profiles.user2.avatar = 'avatar_d.png';
+      }
+      if (appState.profiles.user2.avatar === 'avatar_d.png') {
+        appState.profiles.user2.avatar = '🐻';
       }
     } catch (e) {
       appState.profiles = { ...DEFAULT_PROFILES };
@@ -337,6 +350,12 @@ function loadWishesFromStorage() {
       appState.wishes = JSON.parse(saved);
       // Migrate old sample wishes authors if needed
       appState.wishes.forEach(w => {
+        if (w.author_avatar === 'avatar_r.png') {
+          w.author_avatar = appState.profiles.user1.avatar || '🐰';
+        }
+        if (w.author_avatar === 'avatar_d.png') {
+          w.author_avatar = appState.profiles.user2.avatar || '🐻';
+        }
         if (w.author_id === 'user1' && (w.author_name === '로빈' || w.author_name === '사용자 1')) {
           w.author_name = appState.profiles.user1.name;
           w.author_avatar = appState.profiles.user1.avatar;
@@ -392,7 +411,7 @@ function getStarterSampleWishes() {
       id: 'wish_sample_1',
       author_id: 'user1',
       author_name: 'R',
-      author_avatar: 'avatar_r.png',
+      author_avatar: '🐰',
       category: '데이트 / 놀기 🎡',
       content: '이번 주말에 날씨 좋으면 한강 공원에서 피크닉하고 돗자리 펴서 낮잠 자기 🌸',
       status: 'registered',
@@ -406,7 +425,7 @@ function getStarterSampleWishes() {
       id: 'wish_sample_2',
       author_id: 'user2',
       author_name: 'D',
-      author_avatar: 'avatar_d.png',
+      author_avatar: '🐻',
       category: '맛있는 음식 먹기 🍰',
       content: '퇴근하고 같이 분위기 좋은 카페 가서 달콤한 딸기 케이크랑 커피 마시기 ☕',
       status: 'registered',
@@ -1276,9 +1295,64 @@ function initEventHandlers() {
   initEmojiPickers();
 }
 
+// Helper to place or update a custom photo button in the emoji picker row
+function setCustomPhotoInRow(rowId, dataUrl) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  let customBtn = row.querySelector('.user-custom-photo');
+  if (!customBtn) {
+    customBtn = document.createElement('button');
+    customBtn.type = 'button';
+    customBtn.className = 'emoji-opt user-custom-photo';
+    customBtn.title = '내 사진';
+    customBtn.innerHTML = `<img src="${dataUrl}" class="avatar-img-circle" alt="사진">`;
+    row.prepend(customBtn);
+  } else {
+    const img = customBtn.querySelector('img');
+    if (img) img.src = dataUrl;
+  }
+  customBtn.setAttribute('data-emoji', dataUrl);
+  row.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('active'));
+  customBtn.classList.add('active');
+}
+
+// Process image file from device camera/gallery with canvas resizing
+function handlePhotoFileInput(file, rowId) {
+  if (!file || !file.type.startsWith('image/')) {
+    alert('이미지 파일만 선택할 수 있습니다.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const size = 200; // 200x200 square avatar
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const minDim = Math.min(img.width, img.height);
+      const sx = (img.width - minDim) / 2;
+      const sy = (img.height - minDim) / 2;
+      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      setCustomPhotoInRow(rowId, dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function openProfileModal() {
   elements.inputUser1Name.value = appState.profiles.user1.name;
   elements.inputUser2Name.value = appState.profiles.user2.name;
+
+  if (appState.profiles.user1.avatar && appState.profiles.user1.avatar.startsWith('data:image/')) {
+    setCustomPhotoInRow('user1EmojiRow', appState.profiles.user1.avatar);
+  }
+  if (appState.profiles.user2.avatar && appState.profiles.user2.avatar.startsWith('data:image/')) {
+    setCustomPhotoInRow('user2EmojiRow', appState.profiles.user2.avatar);
+  }
 
   setSelectedEmoji('user1EmojiRow', appState.profiles.user1.avatar);
   setSelectedEmoji('user2EmojiRow', appState.profiles.user2.avatar);
@@ -1289,13 +1363,18 @@ function openProfileModal() {
 function setSelectedEmoji(rowId, avatarValue) {
   const row = document.getElementById(rowId);
   if (!row) return;
+  let matched = false;
   row.querySelectorAll('.emoji-opt').forEach(opt => {
     if (opt.getAttribute('data-emoji') === avatarValue) {
       opt.classList.add('active');
+      matched = true;
     } else {
       opt.classList.remove('active');
     }
   });
+  if (!matched && avatarValue && avatarValue.startsWith('data:image/')) {
+    setCustomPhotoInRow(rowId, avatarValue);
+  }
 }
 
 function initEmojiPickers() {
@@ -1309,14 +1388,32 @@ function initEmojiPickers() {
       opt.classList.add('active');
     });
   });
+
+  const photoInput1 = document.getElementById('inputUser1Photo');
+  if (photoInput1) {
+    photoInput1.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handlePhotoFileInput(file, 'user1EmojiRow');
+      photoInput1.value = '';
+    });
+  }
+
+  const photoInput2 = document.getElementById('inputUser2Photo');
+  if (photoInput2) {
+    photoInput2.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handlePhotoFileInput(file, 'user2EmojiRow');
+      photoInput2.value = '';
+    });
+  }
 }
 
 function handleSaveProfiles() {
   const u1Name = elements.inputUser1Name.value.trim() || 'R';
   const u2Name = elements.inputUser2Name.value.trim() || 'D';
 
-  const u1Avatar = document.querySelector('#user1EmojiRow .emoji-opt.active')?.getAttribute('data-emoji') || 'avatar_r.png';
-  const u2Avatar = document.querySelector('#user2EmojiRow .emoji-opt.active')?.getAttribute('data-emoji') || 'avatar_d.png';
+  const u1Avatar = document.querySelector('#user1EmojiRow .emoji-opt.active')?.getAttribute('data-emoji') || '🐰';
+  const u2Avatar = document.querySelector('#user2EmojiRow .emoji-opt.active')?.getAttribute('data-emoji') || '🐻';
 
   appState.profiles = {
     user1: { name: u1Name, avatar: u1Avatar },

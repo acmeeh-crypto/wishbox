@@ -298,11 +298,12 @@ body {
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-card);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   transition: transform 0.2s ease;
+  min-width: 0;
 }
 
 .stat-item:hover {
@@ -310,36 +311,41 @@ body {
 }
 
 .stat-icon {
-  font-size: 1.6rem;
+  font-size: 1.25rem;
   background: #ffffff;
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 }
 
 .stat-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .stat-name {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .stat-value {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-main);
   line-height: 1.1;
   font-feature-settings: 'tnum';
+  white-space: nowrap;
 }
 
 .stat-item.active .stat-value { color: var(--stage-registered-text); }
@@ -1235,6 +1241,66 @@ body {
   box-shadow: 0 2px 8px rgba(255, 101, 132, 0.25);
 }
 
+.profile-photo-upload-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-pick-photo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.btn-pick-photo:hover {
+  border-color: var(--color-primary);
+  color: #e11d48;
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.photo-upload-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.emoji-opt.user-custom-photo {
+  padding: 2px;
+}
+
+.emoji-opt.user-custom-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .modal-footer {
   padding: 16px 22px;
   border-top: 1.5px solid var(--border-card);
@@ -1372,6 +1438,7 @@ body {
 @media (max-width: 640px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .wish-cards-grid {
