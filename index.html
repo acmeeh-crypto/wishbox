@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
@@ -517,14 +517,24 @@ ALTER PUBLICATION supabase_realtime ADD TABLE wishes;
   <!-- Toast Notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=8"></script>
   <script>
-    // Register Service Worker (PWA)
+    // Register Service Worker (PWA) with immediate update handling
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((err) => {
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
+          reg.update();
+        }).catch((err) => {
           console.warn('SW registration failed:', err);
         });
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
   </script>
