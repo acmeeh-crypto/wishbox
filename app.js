@@ -136,15 +136,18 @@ function navigateToScreen(screenId) {
   const btnBack = document.getElementById('btnBack');
   const headerLogo = document.getElementById('headerLogo');
   const headerScreenTitle = document.getElementById('headerScreenTitle');
+  const headerActions = document.querySelector('.header-actions');
 
   if (screenId === 'screen-home') {
     if (btnBack) btnBack.classList.add('hidden');
     if (headerLogo) headerLogo.classList.remove('hidden');
     if (headerScreenTitle) { headerScreenTitle.classList.add('hidden'); headerScreenTitle.textContent = ''; }
+    if (headerActions) headerActions.classList.remove('hidden');
   } else {
     if (btnBack) btnBack.classList.remove('hidden');
     if (headerLogo) headerLogo.classList.add('hidden');
     if (headerScreenTitle) { headerScreenTitle.classList.remove('hidden'); headerScreenTitle.textContent = SCREEN_TITLES[screenId] || ''; }
+    if (headerActions) headerActions.classList.add('hidden');
   }
 
   // Update GNB active tab
