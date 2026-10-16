@@ -31,6 +31,10 @@ let appState = {
 
 // DOM Elements
 const elements = {
+  // Home (디데이 10일 이하 소원)
+  homeDdayList: document.getElementById('homeDdayList'),
+  homeDdayCount: document.getElementById('homeDdayCount'),
+  btnOpenMinigame: document.getElementById('btnOpenMinigame'),
   // Stats (사용자별 획득/등록/완료/소멸)
   user1StatAvatar: document.getElementById('user1StatAvatar'),
   user1StatName: document.getElementById('user1StatName'),
@@ -132,7 +136,7 @@ function navigateToScreen(screenId) {
 
   currentScreen = screenId;
 
-  // Toggle home screen scroll lock
+  // Toggle home screen class
   const isHome = screenId === 'screen-home';
   document.documentElement.classList.toggle('is-home-screen', isHome);
   document.body.classList.toggle('is-home-screen', isHome);
@@ -172,25 +176,6 @@ function initNavigation() {
   document.documentElement.classList.toggle('is-home-screen', isHome);
   document.body.classList.toggle('is-home-screen', isHome);
 
-  // Prevent vertical rubber-band scrolling on home screen
-  const homeScreen = document.getElementById('screen-home');
-  if (homeScreen) {
-    homeScreen.addEventListener('touchmove', (e) => {
-      if (currentScreen === 'screen-home') {
-        e.preventDefault();
-      }
-    }, { passive: false });
-  }
-
-  const appHeader = document.getElementById('appHeader');
-  if (appHeader) {
-    appHeader.addEventListener('touchmove', (e) => {
-      if (currentScreen === 'screen-home') {
-        e.preventDefault();
-      }
-    }, { passive: false });
-  }
-
   const bottomGnb = document.querySelector('.bottom-gnb');
   if (bottomGnb) {
     bottomGnb.addEventListener('touchmove', (e) => {
@@ -198,7 +183,7 @@ function initNavigation() {
     }, { passive: false });
   }
 
-  // Home nav buttons, GNB tabs, and inline dynamic buttons → navigate to screen (delegation)
+  // GNB tabs and inline dynamic buttons → navigate to screen (delegation)
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-target-screen]');
     if (!btn) return;
@@ -214,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSyncConfigFromStorage();
   initEventHandlers();
   initNavigation();
+  initSpaceAdventureIntegration();
   initSupabaseIfConfigured();
   if (!appState.isOnlineSync) {
     loadWishesFromStorage();
@@ -361,6 +347,7 @@ function renderProfileUI() {
 
 // 모든 화면 다시 그리기
 function renderAll() {
+  renderHomeDday();
   renderWishes();
   renderLamps();
   updateRegisterPanel();
@@ -412,9 +399,9 @@ function getStarterSampleWishes() {
   const DAY = 24 * 60 * 60 * 1000;
   const today = parseDateInputValue(toLocalDateInputValue(new Date()));
   const daysAgo = (n) => new Date(today.getTime() - n * DAY);
-  const sample1Acquired = daysAgo(2);
+  const sample1Acquired = daysAgo(22); // D-8 예시
   const sample2Acquired = daysAgo(5);
-  const lamp1Acquired = daysAgo(10);
+  const lamp1Acquired = daysAgo(25);   // D-5 예시
   const lamp2Acquired = daysAgo(1);
   const lamp3Acquired = daysAgo(3);
 
@@ -617,11 +604,11 @@ function startCountdownTicker() {
 }
 
 function updateLiveTimers() {
-  // 등록 소원 카드 타이머
+  // 등록/홈 소원 카드 타이머
   document.querySelectorAll('[data-wish-timer-id]').forEach(el => {
     const wishId = el.getAttribute('data-wish-timer-id');
     const wish = appState.wishes.find(w => w.id === wishId);
-    if (!wish || wish.status !== 'registered') return;
+    if (!wish || (wish.status !== 'registered' && wish.status !== 'acquired')) return;
 
     const { dDayStr, timerStr, percentElapsed } = calculateTimeInfo(getAcquiredAt(wish), wish.expires_at);
     const cardEl = el.closest('.wish-card');
@@ -656,6 +643,7 @@ function calculateTimeInfo(createdAtStr, expiresAtStr) {
       dDayStr: '소멸됨',
       timerStr: '30일 기한 만료',
       percentElapsed: 100,
+      daysLeft: -1,
       isExpired: true
     };
   }
@@ -674,6 +662,7 @@ function calculateTimeInfo(createdAtStr, expiresAtStr) {
     dDayStr,
     timerStr,
     percentElapsed,
+    daysLeft,
     isExpired: false
   };
 }
@@ -723,6 +712,94 @@ async function persistDelete(wishId) {
 }
 
 // ==========================================================
+// Home Screen: 디데이가 10일 이하로 남은 소원 (획득 + 등록 모두)
+// ==========================================================
+function renderHomeDday() {
+  const container = elements.homeDdayList;
+  if (!container) return;
+
+  const urgentWishes = appState.wishes
+    .filter(w => {
+      if (w.status !== 'registered' && w.status !== 'acquired') return false;
+      const info = calculateTimeInfo(getAcquiredAt(w), w.expires_at);
+      return !info.isExpired && info.daysLeft <= 10;
+    })
+    .sort((a, b) => new Date(a.expires_at) - new Date(b.expires_at));
+
+  if (elements.homeDdayCount) {
+    elements.homeDdayCount.textContent = `${urgentWishes.length}개`;
+  }
+
+  if (urgentWishes.length === 0) {
+    container.innerHTML = `
+      <div class="home-dday-empty">
+        <div class="home-dday-empty-icon">🌟</div>
+        <div class="home-dday-empty-title">디데이가 10일 이하로 남은 소원이 없어요</div>
+        <div class="home-dday-empty-sub">남은 기한이 10일 이하가 되면 이곳에 자동으로 표시됩니다.</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = urgentWishes.map(wish => {
+    const authorProfile = appState.profiles[wish.author_id] || {
+      name: wish.author_name,
+      avatar: wish.author_avatar
+    };
+    const timeInfo = calculateTimeInfo(getAcquiredAt(wish), wish.expires_at);
+    const acquiredDateStr = formatDate(getAcquiredAt(wish));
+    const expiresDateStr = formatDate(wish.expires_at);
+    const isAcquired = wish.status === 'acquired';
+
+    const stageClass = isAcquired ? 'acquired' : 'registered';
+    const stageIcon = isAcquired ? '✨' : '⏳';
+    const stageLabel = isAcquired ? '획득(미등록)' : '등록(진행 중)';
+    const categoryText = isAcquired ? '✨ 미등록 소원' : (wish.category || '소원');
+    const contentText = isAcquired
+      ? '아직 소원 내용이 등록되지 않았어요. 눌러서 소원을 등록해보세요!'
+      : (wish.content && wish.content.trim() ? wish.content : '소원 내용을 작성해보세요');
+    const gotoHint = isAcquired ? '💌 소원 등록하러 가기 →' : '📜 소원 보기로 이동 →';
+
+    return `
+      <article class="wish-card ${wish.status} author-${wish.author_id} home-dday-card"
+        data-home-wish-id="${escapeHtml(wish.id)}"
+        data-home-wish-status="${escapeHtml(wish.status)}"
+        data-home-wish-author="${escapeHtml(wish.author_id)}">
+        <div>
+          <div class="wish-card-header">
+            <span class="author-badge">
+              <span>${renderAvatarHtml(authorProfile.avatar, authorProfile.name)}</span>
+              <span>${escapeHtml(authorProfile.name)}</span>
+            </span>
+            <span class="stage-badge ${stageClass}">
+              <span>${stageIcon}</span>
+              <span>${stageLabel}</span>
+            </span>
+          </div>
+          <div class="wish-category-tag">${escapeHtml(categoryText)}</div>
+          <div class="wish-content-text">${escapeHtml(contentText)}</div>
+        </div>
+        <div>
+          <div class="countdown-box registered" data-wish-timer-id="${escapeHtml(wish.id)}">
+            <div class="countdown-dday-row">
+              <span class="countdown-dday-badge">${timeInfo.dDayStr}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${timeInfo.percentElapsed}%;"></div>
+            </div>
+            <div class="dates-meta-list">
+              <div class="date-meta-item">획득: ${acquiredDateStr}</div>
+              <div class="date-meta-item">소멸 예정: ${expiresDateStr}</div>
+            </div>
+          </div>
+          <div class="home-dday-goto-hint">${gotoHint}</div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+// ==========================================================
 // Rendering Wishes List (등록된 소원만: 등록/완료/소멸)
 // ==========================================================
 function getRegisteredWishes() {
@@ -760,7 +837,7 @@ function renderWishes() {
 
 function createWishCardElement(wish) {
   const card = document.createElement('article');
-  card.className = `wish-card ${wish.status}`;
+  card.className = `wish-card ${wish.status} author-${wish.author_id}`;
   card.setAttribute('data-id', wish.id);
 
   // Status Badge Label
@@ -953,7 +1030,7 @@ function renderLamps() {
     const owner = appState.profiles[lamp.author_id] || { name: lamp.author_name, avatar: lamp.author_avatar };
     const topLeft = isExpired
       ? `<span class="lamp-owner">${renderAvatarHtml(owner.avatar, owner.name)} ${escapeHtml(owner.name)}</span>`
-      : `<span class="lamp-order">#${index + 1}${index === 0 ? ' · 다음 등록 시 사용' : ''}</span>`;
+      : `<span class="lamp-order">#${index + 1}${index === 0 ? ' · 다음 사용' : ''}</span>`;
     const ddayHtml = isExpired
       ? `<span class="lamp-dday expired">소멸됨</span>`
       : `<span class="lamp-dday" data-lamp-timer-id="${lamp.id}">${timeInfo.dDayStr}</span>`;
@@ -1330,7 +1407,111 @@ function initEventHandlers() {
     });
   });
 
+  // 홈 화면 D-Day 카드 클릭 시 해당 화면으로 이동
+  if (elements.homeDdayList) {
+    elements.homeDdayList.addEventListener('click', (e) => {
+      const card = e.target.closest('.home-dday-card');
+      if (!card) return;
+      const status = card.getAttribute('data-home-wish-status');
+      const authorId = card.getAttribute('data-home-wish-author');
+      if (status === 'acquired') {
+        if (authorId) setRegisterAuthor(authorId);
+        navigateToScreen('screen-register');
+      } else {
+        navigateToScreen('screen-list');
+      }
+    });
+  }
+
   initEmojiPickers();
+}
+
+// ==========================================================
+// Space Adventure Mini-Game Integration (GNB + Supabase Score Sync)
+// ==========================================================
+function initSpaceAdventureIntegration() {
+  if (!window.SpaceAdventure) return;
+
+  const LS_KEY = 'space_adventure_scores_v1';
+  const readLocal = () => {
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    } catch (_) {
+      return {};
+    }
+  };
+  const writeLocal = (obj) => {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(obj));
+    } catch (_) {}
+  };
+
+  window.SpaceAdventure.setScoreStore({
+    async load() {
+      const local = readLocal();
+      const result = {
+        R: local.R || { score: 0, stage: 1 },
+        D: local.D || { score: 0, stage: 1 }
+      };
+
+      if (appState.isOnlineSync && appState.supabaseClient) {
+        try {
+          const { data, error } = await appState.supabaseClient
+            .from('space_scores')
+            .select('*');
+          if (!error && Array.isArray(data)) {
+            data.forEach(row => {
+              const key = row.player_id === 'user2' || row.player_id === 'D' ? 'D' : 'R';
+              const remoteScore = Number(row.best_score) || 0;
+              const remoteStage = Number(row.best_stage) || 1;
+              if (remoteScore >= (result[key].score || 0)) {
+                result[key] = {
+                  score: remoteScore,
+                  stage: Math.max(remoteStage, result[key].stage || 1)
+                };
+              }
+            });
+            writeLocal(result);
+          }
+        } catch (err) {
+          console.warn('SpaceAdventure score load fallback to local:', err);
+        }
+      }
+      return result;
+    },
+
+    async save(player, score, stage) {
+      const cur = readLocal();
+      const prev = cur[player] || { score: 0, stage: 1 };
+      const bestScore = Math.max(prev.score || 0, score || 0);
+      const bestStage = Math.max(prev.stage || 1, stage || 1);
+      cur[player] = { score: bestScore, stage: bestStage, at: Date.now() };
+      writeLocal(cur);
+
+      if (appState.isOnlineSync && appState.supabaseClient) {
+        try {
+          const playerId = player === 'D' ? 'user2' : 'user1';
+          await appState.supabaseClient
+            .from('space_scores')
+            .upsert([{
+              player_id: playerId,
+              best_score: bestScore,
+              best_stage: bestStage,
+              updated_at: new Date().toISOString()
+            }], { onConflict: 'player_id' });
+        } catch (err) {
+          console.warn('SpaceAdventure score save fallback to local:', err);
+        }
+      }
+      return cur;
+    }
+  });
+
+  if (elements.btnOpenMinigame) {
+    elements.btnOpenMinigame.addEventListener('click', () => {
+      window.SpaceAdventure.open();
+    });
+  }
 }
 
 // Helper to place or update a custom photo button in the emoji picker row

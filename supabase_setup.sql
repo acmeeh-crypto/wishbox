@@ -46,3 +46,19 @@ USING (true);
 
 -- 3. 두 기기 간 실시간(Realtime) 변경 감지 활성화
 ALTER PUBLICATION supabase_realtime ADD TABLE wishes;
+
+-- 4. 미니게임(우주 탐험) 최고기록 공유 테이블
+CREATE TABLE IF NOT EXISTS space_scores (
+  player_id TEXT PRIMARY KEY, -- 'user1' 또는 'user2'
+  best_score INT NOT NULL DEFAULT 0,
+  best_stage INT NOT NULL DEFAULT 1,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE space_scores ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read-write"
+ON space_scores FOR ALL
+USING (true)
+WITH CHECK (true);
+

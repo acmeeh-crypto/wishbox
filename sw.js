@@ -1,10 +1,12 @@
 // 소원함 시즌2 - Service Worker (PWA)
-const CACHE_NAME = 'wishapp-v13';
+const CACHE_NAME = 'wishapp-v14';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './space.js',
+  './minigame_icon.png',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

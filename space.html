@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#05030f">
+  <title>🚀 우주 탐험 (단독 테스트)</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #05030f;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script src="space.js?v=4"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      SpaceAdventure.open({
+        onClose() {
+          // 단독 실행 페이지에서는 닫기 버튼을 누르면 타이틀로 복귀
+          SpaceAdventure.open({ onClose: this.onClose });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
