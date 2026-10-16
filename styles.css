@@ -1633,6 +1633,7 @@ body {
    ========================================================== */
 .home-dday-container {
   padding-top: 14px;
+  padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px) + 92px);
 }
 
 .home-dday-section {
@@ -2120,23 +2121,77 @@ body {
   color: #e11d48;
 }
 
-/* 미니게임 커스텀 아이콘 탭 (로켓 일러스트 + 손글씨 "미니게임" 일체형) */
-.gnb-minigame-btn {
-  padding: 3px 2px;
+/* 메인화면 전용 플로팅 미니게임 버튼 (GNB 바로 위 오른쪽 가장자리 고정 + 3D 입체 원형) */
+.floating-minigame-btn {
+  position: fixed;
+  right: 16px;
+  bottom: calc(66px + env(safe-area-inset-bottom, 0px) + 14px);
+  z-index: 65;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  padding: 8px;
+  border: 2px solid #ffffff;
+  background: radial-gradient(circle at 32% 24%, #ffffff 0%, #fffdf9 48%, #f4ede4 82%, #e3d6c8 100%);
+  box-shadow:
+    0 10px 20px rgba(31, 41, 55, 0.22),
+    0 3px 8px rgba(255, 101, 132, 0.2),
+    inset 0 4px 7px rgba(255, 255, 255, 0.98),
+    inset 0 -5px 9px rgba(175, 152, 134, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
 }
 
-.gnb-minigame-img {
+/* 입체 광택 하이라이트 (볼록한 3D 구체 느낌) */
+.floating-minigame-btn::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 11px;
+  width: 34px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0) 100%);
+  transform: rotate(-14deg);
+  pointer-events: none;
+}
+
+body:not(.is-home-screen) .floating-minigame-btn {
+  display: none !important;
+}
+
+.floating-minigame-img {
+  width: 46px;
   height: 46px;
-  width: auto;
-  max-width: 100%;
   object-fit: contain;
   display: block;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8));
 }
 
-.gnb-minigame-btn:hover .gnb-minigame-img,
-.gnb-minigame-btn:active .gnb-minigame-img {
-  transform: translateY(-2px) scale(1.06);
+.floating-minigame-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow:
+    0 14px 24px rgba(31, 41, 55, 0.26),
+    0 4px 12px rgba(255, 101, 132, 0.28),
+    inset 0 4px 7px rgba(255, 255, 255, 1),
+    inset 0 -5px 9px rgba(175, 152, 134, 0.42);
+}
+
+.floating-minigame-btn:active {
+  transform: translateY(2px) scale(0.95);
+  box-shadow:
+    0 4px 10px rgba(31, 41, 55, 0.2),
+    inset 0 3px 6px rgba(175, 152, 134, 0.35),
+    inset 0 -2px 5px rgba(255, 255, 255, 0.9);
 }
 
 @media (max-width: 480px) {
@@ -2144,12 +2199,19 @@ body {
     height: 62px;
   }
   .gnb-icon {
-    font-size: 1.08rem;
+    font-size: 1.1rem;
   }
   .gnb-label {
-    font-size: 0.58rem;
+    font-size: 0.6rem;
   }
-  .gnb-minigame-img {
-    height: 42px;
+  .floating-minigame-btn {
+    right: 14px;
+    bottom: calc(62px + env(safe-area-inset-bottom, 0px) + 12px);
+    width: 64px;
+    height: 64px;
+  }
+  .floating-minigame-img {
+    width: 43px;
+    height: 43px;
   }
 }

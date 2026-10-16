@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body class="is-home-screen">
 
@@ -316,6 +316,11 @@
 
     </div><!-- /#screenViewport -->
 
+    <!-- ── FLOATING MINIGAME BUTTON (메인화면 전용, GNB 바로 위 오른쪽 고정) ── -->
+    <button type="button" class="floating-minigame-btn" id="btnOpenMinigame" aria-label="미니게임 우주 탐험">
+      <img src="minigame_icon.png" alt="미니게임" class="floating-minigame-img">
+    </button>
+
     <!-- ── BOTTOM GNB (하단 네비게이션 바) ────────────────────────── -->
     <nav class="bottom-gnb" id="bottomGnb" aria-label="하단 네비게이션">
       <div class="bottom-gnb-inner">
@@ -338,9 +343,6 @@
         <button type="button" class="gnb-tab-btn" data-target-screen="screen-list">
           <span class="gnb-icon">📜</span>
           <span class="gnb-label">소원 보기</span>
-        </button>
-        <button type="button" class="gnb-tab-btn gnb-minigame-btn" id="btnOpenMinigame" aria-label="미니게임 우주 탐험">
-          <img src="minigame_icon.png" alt="미니게임" class="gnb-minigame-img">
         </button>
       </div>
     </nav>
