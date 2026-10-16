@@ -731,13 +731,7 @@ function renderHomeDday() {
   }
 
   if (urgentWishes.length === 0) {
-    container.innerHTML = `
-      <div class="home-dday-empty">
-        <div class="home-dday-empty-icon">🌟</div>
-        <div class="home-dday-empty-title">디데이가 10일 이하로 남은 소원이 없어요</div>
-        <div class="home-dday-empty-sub">남은 기한이 10일 이하가 되면 이곳에 자동으로 표시됩니다.</div>
-      </div>
-    `;
+    container.innerHTML = '';
     return;
   }
 
