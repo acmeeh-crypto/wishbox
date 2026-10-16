@@ -431,7 +431,7 @@
     return escapeHtml(av || '✨');
   }
   function stageLabel(n) {
-    if (!n) return '출발 전';
+    if (!n) return '';
     const p = PLANETS[(n - 1) % PLANETS.length];
     const lap = Math.floor((n - 1) / PLANETS.length) + 1;
     return `${p.ko}${lap > 1 ? ` (${lap}바퀴)` : ''}`;
@@ -803,7 +803,8 @@
     const me = profiles[G.player] || { name: '대원' };
     const vs = ['user1', 'user2'].map((pid) => {
       const s = scores[pid] || { score: 0, stage: 0 };
-      return `<div>${escapeHtml(profiles[pid].name)}<br><b style="color:#ffe14d">${pad(s.score, 6)}</b><br><span style="color:#a78bfa">${stageLabel(s.stage)}</span></div>`;
+      const st = stageLabel(s.stage);
+      return `<div>${escapeHtml(profiles[pid].name)}<br><b style="color:#ffe14d">${pad(s.score, 6)}</b>${st ? `<br><span style="color:#a78bfa">${st}</span>` : ''}</div>`;
     }).join('<div style="align-self:center;color:#ff6b9a">VS</div>');
     setOverlay(`<div class="sa-panel">
       <div class="sa-big">TIME UP!</div>
@@ -834,16 +835,18 @@
     const topBestHtml = (pid) => {
       const p = profiles[pid] || { name: '대원' };
       const s = scores[pid] || { score: 0, stage: 0 };
-      return `🏆 ${escapeHtml(p.name)} 최고 점수: <b>${pad(s.score, 6)}</b><span>(${stageLabel(s.stage)})</span>`;
+      const st = stageLabel(s.stage);
+      return `🏆 ${escapeHtml(p.name)} 최고 점수: <b>${pad(s.score, 6)}</b>${st ? `<span>(${st})</span>` : ''}`;
     };
     const card = (pid) => {
       const p = profiles[pid], s = scores[pid] || { score: 0, stage: 0 };
+      const st = stageLabel(s.stage);
       return `<button class="sa-player ${G.player === pid ? 'sa-selected' : ''}" data-pid="${pid}">
         ${leader === pid ? '<span class="sa-crown">👑</span>' : ''}
         <div class="sa-avatar">${avatarHtml(p.avatar, p.name)}</div>
         <div class="sa-pname">${escapeHtml(p.name)}</div>
         <div class="sa-pbest">최고 ${pad(s.score, 6)}</div>
-        <div class="sa-pstage">${stageLabel(s.stage)}</div></button>`;
+        ${st ? `<div class="sa-pstage">${st}</div>` : ''}</button>`;
     };
     setOverlay(`<div class="sa-panel">
       <div class="sa-logo">우주 탐험</div>
