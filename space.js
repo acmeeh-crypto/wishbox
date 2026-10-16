@@ -463,7 +463,10 @@
     border-radius:6px;padding:18px 16px;width:min(92vw,380px);max-height:100%;overflow:auto;text-align:center}
   .sa-logo{font-family:'Galmuri14','Galmuri11',monospace;font-size:34px;color:#ffe14d;text-shadow:3px 3px 0 #c2410c,6px 6px 0 #4c1d95;letter-spacing:2px}
   .sa-sub{font-size:11px;color:#a78bfa;letter-spacing:4px;margin:6px 0 12px}
-  .sa-desc{font-size:12px;line-height:1.6;color:#d6ccff;margin:0 0 14px}
+  .sa-desc{font-size:12px;line-height:1.6;color:#d6ccff;margin:0 0 10px}
+  .sa-top-best{background:linear-gradient(180deg,#251652,#180f38);border:2px solid #ffe14d;border-radius:6px;padding:7px 10px;margin-bottom:12px;font-size:12px;color:#fff;box-shadow:0 0 10px rgba(255,225,77,.25)}
+  .sa-top-best b{color:#ffe14d;font-size:14px}
+  .sa-top-best span{color:#5ff2d0;font-size:11px;margin-left:4px}
   .sa-label{font-size:12px;color:#ffe14d;margin-bottom:8px}
   .sa-players{display:flex;gap:10px;margin-bottom:14px}
   .sa-player{flex:1;background:#1c1342;border:3px solid #33266a;border-radius:6px;padding:10px 6px;color:#fff;cursor:pointer;font-family:inherit;position:relative}
@@ -710,8 +713,7 @@
     Sound.play('start');
     G.stageIdx = 0; G.lap = 0; G.arrivals = 0; G.score = 0;
     G.paused = false;
-    G.best = 0;
-    scoreStore.load().then((s) => { G.best = ((s[G.player] || {}).score) || 0; });
+    safeLoadScores().then((s) => { G.best = ((s[G.player] || {}).score) || 0; });
     startIntro();
   }
 
@@ -753,15 +755,52 @@
     startIntro();
   }
 
+  async function safeLoadScores() {
+    let scores = {};
+    try {
+      if (scoreStore && typeof scoreStore.load === 'function') {
+        scores = (await scoreStore.load()) || {};
+      }
+    } catch (e) {
+      try { scores = (await LocalScoreStore.load()) || {}; } catch (_) {}
+    }
+    return {
+      user1: scores.user1 || scores.R || { score: 0, stage: 0 },
+      user2: scores.user2 || scores.D || { score: 0, stage: 0 },
+    };
+  }
+
+  async function safeSubmitScore(pid, score, stage) {
+    let isNew = false;
+    try {
+      const prevScores = await safeLoadScores();
+      const prevBest = (prevScores[pid] && prevScores[pid].score) || 0;
+      isNew = score > prevBest;
+      if (scoreStore && typeof scoreStore.submit === 'function') {
+        const res = await scoreStore.submit(pid, score, stage);
+        if (typeof res === 'boolean') isNew = res;
+      } else if (scoreStore && typeof scoreStore.save === 'function') {
+        await scoreStore.save(pid, score, stage);
+        await LocalScoreStore.submit(pid, score, stage);
+      } else {
+        await LocalScoreStore.submit(pid, score, stage);
+      }
+    } catch (e) {
+      try { isNew = await LocalScoreStore.submit(pid, score, stage); } catch (_) {}
+    }
+    return isNew;
+  }
+
   async function gameOver() {
     G.state = 'gameover'; G.stateT = 0;
     G.time = 0; G.v = 0;
     Sound.stopMusic();
     Sound.play('gameover');
-    const isNew = await scoreStore.submit(G.player, G.score, G.arrivals);
-    const scores = await scoreStore.load();
+    const isNew = await safeSubmitScore(G.player, G.score, G.arrivals);
+    const scores = await safeLoadScores();
+    G.best = ((scores[G.player] || {}).score) || 0;
     const profiles = getProfiles();
-    const me = profiles[G.player];
+    const me = profiles[G.player] || { name: '대원' };
     const vs = ['user1', 'user2'].map((pid) => {
       const s = scores[pid] || { score: 0, stage: 0 };
       return `<div>${escapeHtml(profiles[pid].name)}<br><b style="color:#ffe14d">${pad(s.score, 6)}</b><br><span style="color:#a78bfa">${stageLabel(s.stage)}</span></div>`;
@@ -774,8 +813,8 @@
         도착한 행성 <b>${G.arrivals ? stageLabel(G.arrivals) : '없음'}</b> (${G.arrivals}개)</div>
       <div class="sa-label" style="margin-top:6px">🏆 최고기록 대결</div>
       <div class="sa-vs">${vs}</div>
-      <button class="sa-btn" data-sa-act="retry">다시 도전 ▶</button>
-      <button class="sa-btn sa-secondary" data-sa-act="title">처음으로</button>
+      <button class="sa-btn" data-sa-act="retry">다시하기 ▶</button>
+      <button class="sa-btn sa-secondary" data-sa-act="title">처음으로 돌아가기</button>
     </div>`, true);
     overlay.querySelector('[data-sa-act="retry"]').onclick = () => startGame();
     overlay.querySelector('[data-sa-act="title"]').onclick = () => showTitle();
@@ -787,10 +826,16 @@
     resetRun();
     G.v = 4;
     Sound.stopMusic();
-    const scores = await scoreStore.load();
+    const scores = await safeLoadScores();
     const profiles = getProfiles();
+    G.best = ((scores[G.player] || {}).score) || 0;
     const s1 = (scores.user1 || {}).score || 0, s2 = (scores.user2 || {}).score || 0;
     const leader = s1 === s2 ? null : s1 > s2 ? 'user1' : 'user2';
+    const topBestHtml = (pid) => {
+      const p = profiles[pid] || { name: '대원' };
+      const s = scores[pid] || { score: 0, stage: 0 };
+      return `🏆 ${escapeHtml(p.name)} 최고 점수: <b>${pad(s.score, 6)}</b><span>(${stageLabel(s.stage)})</span>`;
+    };
     const card = (pid) => {
       const p = profiles[pid], s = scores[pid] || { score: 0, stage: 0 };
       return `<button class="sa-player ${G.player === pid ? 'sa-selected' : ''}" data-pid="${pid}">
@@ -804,6 +849,7 @@
       <div class="sa-logo">우주 탐험</div>
       <div class="sa-sub">SPACE ADVENTURE</div>
       <p class="sa-desc">개구리 대원을 정해진 시간 안에<br>태양계 행성까지 데려다 주세요! 🐸🪐</p>
+      <div class="sa-top-best" id="saTopBest">${topBestHtml(G.player)}</div>
       <div class="sa-label">누가 탐험할까요?</div>
       <div class="sa-players">${card('user1')}${card('user2')}</div>
       <button class="sa-btn" data-sa-act="start">출발! ▶</button>
@@ -811,9 +857,12 @@
         ⭐ 별 +500 · 👽 외계인 점프로 잡기 +1000<br>🚀 로켓을 먹으면 블랙홀 위를 날아가요<br>
         <span style="opacity:.7">PC: ← → 이동 · 스페이스 점프 · P 일시정지</span></div>
     </div>`, true);
+    const topBestEl = overlay.querySelector('#saTopBest');
     overlay.querySelectorAll('.sa-player').forEach((b) => {
       b.onclick = () => {
         G.player = b.dataset.pid;
+        G.best = ((scores[G.player] || {}).score) || 0;
+        if (topBestEl) topBestEl.innerHTML = topBestHtml(G.player);
         overlay.querySelectorAll('.sa-player').forEach((x) => x.classList.toggle('sa-selected', x === b));
       };
     });
@@ -830,7 +879,7 @@
       Sound.stopMusic();
       setOverlay(`<div class="sa-panel"><div class="sa-big" style="color:#ffe14d">일시정지</div>
         <button class="sa-btn" data-sa-act="resume">계속하기 ▶</button>
-        <button class="sa-btn sa-secondary" data-sa-act="title">처음으로</button></div>`, true);
+        <button class="sa-btn sa-secondary" data-sa-act="title">처음으로 돌아가기</button></div>`, true);
       overlay.querySelector('[data-sa-act="resume"]').onclick = () => togglePause(false);
       overlay.querySelector('[data-sa-act="title"]').onclick = () => showTitle();
     } else {
@@ -1511,7 +1560,7 @@
         document.addEventListener('visibilitychange', onVisibility);
         rafId = requestAnimationFrame(loop);
       }
-      scoreStore.load().then((s) => { G.best = ((s[G.player] || {}).score) || 0; });
+      safeLoadScores().then((s) => { G.best = ((s[G.player] || {}).score) || 0; });
       showTitle();
     },
     close() {

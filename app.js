@@ -1426,12 +1426,22 @@ function initEventHandlers() {
 function initSpaceAdventureIntegration() {
   if (!window.SpaceAdventure) return;
 
-  const LS_KEY = 'space_adventure_scores_v1';
+  const LS_KEY = 'space_adventure_scores';
+  const normalizePid = (pid) => (pid === 'user2' || pid === 'D' ? 'user2' : 'user1');
+
   const readLocal = () => {
     try {
-      return JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      const raw = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      const v1 = JSON.parse(localStorage.getItem('space_adventure_scores_v1') || '{}');
+      return {
+        user1: raw.user1 || v1.user1 || v1.R || { score: 0, stage: 0 },
+        user2: raw.user2 || v1.user2 || v1.D || { score: 0, stage: 0 }
+      };
     } catch (_) {
-      return {};
+      return {
+        user1: { score: 0, stage: 0 },
+        user2: { score: 0, stage: 0 }
+      };
     }
   };
   const writeLocal = (obj) => {
@@ -1442,11 +1452,7 @@ function initSpaceAdventureIntegration() {
 
   window.SpaceAdventure.setScoreStore({
     async load() {
-      const local = readLocal();
-      const result = {
-        R: local.R || { score: 0, stage: 1 },
-        D: local.D || { score: 0, stage: 1 }
-      };
+      const result = readLocal();
 
       if (appState.isOnlineSync && appState.supabaseClient) {
         try {
@@ -1455,13 +1461,13 @@ function initSpaceAdventureIntegration() {
             .select('*');
           if (!error && Array.isArray(data)) {
             data.forEach(row => {
-              const key = row.player_id === 'user2' || row.player_id === 'D' ? 'D' : 'R';
+              const key = normalizePid(row.player_id);
               const remoteScore = Number(row.best_score) || 0;
-              const remoteStage = Number(row.best_stage) || 1;
+              const remoteStage = Number(row.best_stage) || 0;
               if (remoteScore >= (result[key].score || 0)) {
                 result[key] = {
                   score: remoteScore,
-                  stage: Math.max(remoteStage, result[key].stage || 1)
+                  stage: Math.max(remoteStage, result[key].stage || 0)
                 };
               }
             });
@@ -1474,30 +1480,37 @@ function initSpaceAdventureIntegration() {
       return result;
     },
 
-    async save(player, score, stage) {
-      const cur = readLocal();
-      const prev = cur[player] || { score: 0, stage: 1 };
-      const bestScore = Math.max(prev.score || 0, score || 0);
-      const bestStage = Math.max(prev.stage || 1, stage || 1);
-      cur[player] = { score: bestScore, stage: bestStage, at: Date.now() };
-      writeLocal(cur);
+    async submit(pid, score, stage) {
+      const playerKey = normalizePid(pid);
+      const cur = await this.load();
+      const prev = cur[playerKey] || { score: 0, stage: 0 };
+      const numScore = Number(score) || 0;
+      const numStage = Number(stage) || 0;
+      const isNewRecord = numScore > (prev.score || 0);
 
-      if (appState.isOnlineSync && appState.supabaseClient) {
-        try {
-          const playerId = player === 'D' ? 'user2' : 'user1';
-          await appState.supabaseClient
-            .from('space_scores')
-            .upsert([{
-              player_id: playerId,
-              best_score: bestScore,
-              best_stage: bestStage,
-              updated_at: new Date().toISOString()
-            }], { onConflict: 'player_id' });
-        } catch (err) {
-          console.warn('SpaceAdventure score save fallback to local:', err);
+      const bestScore = Math.max(prev.score || 0, numScore);
+      const bestStage = isNewRecord ? numStage : Math.max(prev.stage || 0, numStage);
+
+      if (isNewRecord || numStage > (prev.stage || 0)) {
+        cur[playerKey] = { score: bestScore, stage: bestStage, at: new Date().toISOString() };
+        writeLocal(cur);
+
+        if (appState.isOnlineSync && appState.supabaseClient) {
+          try {
+            await appState.supabaseClient
+              .from('space_scores')
+              .upsert([{
+                player_id: playerKey,
+                best_score: bestScore,
+                best_stage: bestStage,
+                updated_at: new Date().toISOString()
+              }], { onConflict: 'player_id' });
+          } catch (err) {
+            console.warn('SpaceAdventure score save fallback to local:', err);
+          }
         }
       }
-      return cur;
+      return isNewRecord;
     }
   });
 
