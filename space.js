@@ -637,10 +637,6 @@
     G.curve = 0; G.curveTarget = 0; G.nextCurveAt = 30;
     G.rocketAt = stageLen() * rand(0.3, 0.65); G.rocketSpawned = false;
     G.sparkles = [];
-    for (let i = 0; i < 46; i++) G.sparkles.push(newSparkle(rand(1, VIEW)));
-  }
-  function newSparkle(dz) {
-    return { x: rand(-1.4, 1.4), z: G.traveled + dz, c: pick(['#ffffff', '#ffd6ff', '#9ff0ff', '#fff3a0']) };
   }
 
   // ---------------------------------------------------------
@@ -962,11 +958,7 @@
     G.curve += (G.curveTarget - G.curve) * Math.min(1, dt * 0.8);
   }
 
-  function updateSparkles() {
-    for (let i = 0; i < G.sparkles.length; i++) {
-      if (G.sparkles[i].z - G.traveled < 0.6) G.sparkles[i] = newSparkle(rand(VIEW * 0.6, VIEW));
-    }
-  }
+  function updateSparkles() {}
 
   function updatePlay(dt) {
     G.time -= dt;
@@ -1185,15 +1177,6 @@
       ctx.fillStyle = PAL.edge[lv];
       ctx.fillRect(l, y, ew, 1);
       ctx.fillRect(l + rw - ew, y, ew, 1);
-    }
-    for (const s of G.sparkles) {
-      const d = s.z - G.traveled;
-      if (d < 0.6 || d > VIEW) continue;
-      const x = sxAt(s.x, d), y = proj(d);
-      if (y >= H) continue;
-      const sz = d < 3 ? 2 : 1;
-      ctx.fillStyle = s.c;
-      ctx.fillRect(Math.round(x), Math.round(y), sz, sz);
     }
   }
 
