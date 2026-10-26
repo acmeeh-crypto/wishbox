@@ -177,7 +177,7 @@
     SPR.sat = makeSprite(satRows, {
       k: '#14142b', w: '#e8f4ff', b: '#0284c7', c: '#38bdf8',
       n: '#cbd5e1', y: '#ffe14d', o: '#f59e0b', r: '#ff2a55',
-    }, true, '#ffffff');
+    }, true, '#1e1b4b');
     SPR.satBlink = makeSprite(satRows, {
       k: '#14142b', w: '#ffffff', b: '#2563eb', c: '#7dd3fc',
       n: '#e2e8f0', y: '#fff3a0', o: '#ff9f1c', r: '#ffbe0b',
@@ -200,7 +200,7 @@
     ];
     SPR.debris = makeSprite(debrisRows, {
       k: '#1e293b', l: '#f1f5f9', n: '#94a3b8', m: '#64748b', o: '#ff9f1c', r: '#ff2a55',
-    }, false, '#ffffff');
+    }, false, '#1e1b4b');
     SPR.debrisWarn = makeSprite(debrisRows, {
       k: '#1e293b', l: '#ffffff', n: '#cbd5e1', m: '#64748b', o: '#ffe14d', r: '#ffbe0b',
     }, false, '#ff6b6b');
@@ -221,8 +221,8 @@
       '.yyyo.....oyyy.',
       '.yy.........yy.',
     ];
-    SPR.star = makeSprite(starRows, { y: '#ffe14d', w: '#ffffff', o: '#ffae00' }, false, '#ffffff');
-    SPR.starGlow = makeSprite(starRows, { y: '#fff6a8', w: '#ffffff', o: '#ffe14d' }, false, '#ffe14d');
+    SPR.star = makeSprite(starRows, { y: '#ffe14d', w: '#ffffff', o: '#ffae00' }, false, '#1e1b4b');
+    SPR.starGlow = makeSprite(starRows, { y: '#fff6a8', w: '#ffffff', o: '#ffe14d' }, false, '#4c1d95');
 
     // 외계인 (아이템: 형광 연두/민트 외계인 + 노란 안테나 + 흰색 외곽선, 16x14 -> 18x16)
     const alienRows = [
@@ -243,10 +243,10 @@
     ];
     SPR.alien = makeSprite(alienRows, {
       p: '#52ff7c', l: '#b8ffcb', m: '#1dd1a1', e: '#101020', w: '#ffffff', a: '#ffe14d',
-    }, true, '#ffffff');
+    }, true, '#1e1b4b');
     SPR.alienGlow = makeSprite(alienRows, {
       p: '#7dff9e', l: '#ffffff', m: '#2ee5b5', e: '#101020', w: '#ffffff', a: '#ff6b9a',
-    }, true, '#fff6a8');
+    }, true, '#4c1d95');
 
     // 로켓 (특별 아이템: 11x14 -> 13x16)
     const rocketRows = [
@@ -265,8 +265,8 @@
       '....yyy....',
       '.....y.....',
     ];
-    SPR.rocket = makeSprite(rocketRows, { r: '#ff4d6d', w: '#eef1ff', b: '#38bdf8', o: '#ff9f1c', y: '#ffe14d' }, false, '#ffffff');
-    SPR.rocketGlow = makeSprite(rocketRows, { r: '#ffbe0b', w: '#ffffff', b: '#7dd3fc', o: '#ffe14d', y: '#ffffff' }, false, '#ffe14d');
+    SPR.rocket = makeSprite(rocketRows, { r: '#ff4d6d', w: '#eef1ff', b: '#38bdf8', o: '#ff9f1c', y: '#ffe14d' }, false, '#1e1b4b');
+    SPR.rocketGlow = makeSprite(rocketRows, { r: '#ffbe0b', w: '#ffffff', b: '#7dd3fc', o: '#ffe14d', y: '#ffffff' }, false, '#4c1d95');
   }
 
   // ---------------------------------------------------------
@@ -602,11 +602,11 @@
     for (let i = 0; i < 128; i++) { h = clamp(h + ((Math.random() * 5) | 0) - 2, 0, 8); RIDGE.push(h); }
     for (let i = 0; i < FOG_L; i++) {
       const f = (i / (FOG_L - 1)) * 0.85;
-      PAL.road0.push(mix([92, 42, 156], [128, 100, 200], f));
-      PAL.road1.push(mix([72, 30, 126], [128, 100, 200], f));
+      PAL.road0.push(mix([246, 242, 255], [178, 166, 222], f));
+      PAL.road1.push(mix([228, 220, 250], [178, 166, 222], f));
       PAL.out0.push(mix([22, 12, 52], [52, 40, 100], f));
       PAL.out1.push(mix([15, 8, 38], [52, 40, 100], f));
-      PAL.edge.push(mix([236, 150, 255], [170, 150, 230], f));
+      PAL.edge.push(mix([76, 29, 149], [110, 90, 170], f));
     }
   }
 
@@ -1242,7 +1242,7 @@
     let y1 = Math.min(H - 1, Math.floor(proj(dn)));
     if (y1 < y0) y1 = y0;
     const pulse = ((G.t * 8) | 0) & 1;
-    const cyanOuter = pulse ? '#00f5ff' : '#38ffff';
+    const cyanOuter = pulse ? '#1e1b4b' : '#4c1d95';
 
     for (let y = y0; y <= y1; y++) {
       const d = ROW_D[y - HORIZON];
@@ -1264,10 +1264,10 @@
       // 위·아래 끝단 스캔라인은 시안 테두리로 마감
       if (absTz > 0.86 || (y1 - y0 >= 3 && (y === y0 || y === y1))) continue;
 
-      // 2) 안쪽 흰색 이중 테두리
+      // 2) 안쪽 시안 이중 테두리 (흰 은하수길 위에서도 잘 보이도록)
       const wWhite = wTotal - cyanW * 2;
       if (wWhite > 0) {
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#00c8ff';
         ctx.fillRect(xL + cyanW, y, wWhite, 1);
       }
 
@@ -1487,6 +1487,7 @@
       const y = Math.round(proj(DP) - 50 - p.t * 30);
       const x = Math.round(sxAt(G.px, DP) - p.text.length * 3);
       if (((p.t * 10) | 0) % 3 === 2) continue;
+      for (const [ox, oy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) text(p.text, x + ox, y + oy, '#1e1b4b');
       text(p.text, x, y, p.color);
     }
   }
