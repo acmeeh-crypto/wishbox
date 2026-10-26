@@ -477,8 +477,8 @@
     font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;padding:0}
   .sa-icon-btn:active{transform:translateY(2px)}
   .sa-stage{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
-  .sa-screen{position:relative;width:min(100vw, calc((100vh - 210px) * 1.0667), 768px);
-    width:min(100vw, calc((100dvh - 210px) * 1.0667), 768px);aspect-ratio:256/240}
+  .sa-screen{position:relative;width:min(100vw, calc((100vh - 240px) * 1.0667), 768px);
+    width:min(100vw, calc((100dvh - 240px) * 1.0667), 768px);aspect-ratio:256/240}
   .sa-screen canvas{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges;background:#000}
   .sa-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;padding:10px}
   .sa-overlay.sa-interactive{pointer-events:auto;background:rgba(5,3,15,.55)}
@@ -515,7 +515,7 @@
   .sa-new{color:#5ff2d0;font-size:15px;animation:sa-blink .6s steps(2) infinite;margin-bottom:6px}
   .sa-vs{display:flex;justify-content:space-around;background:#1c1342;border-radius:6px;padding:8px;margin:8px 0 6px;font-size:11px}
   .sa-vs div{line-height:1.6}
-  .sa-controls{display:flex;gap:12px;padding:10px 14px 16px;justify-content:center;flex:0 0 auto}
+  .sa-controls{display:flex;gap:12px;padding:6px 14px 44px;justify-content:center;flex:0 0 auto}
   .sa-ctrl{flex:1;max-width:150px;height:84px;border-radius:18px;border:3px solid #4b3a8e;background:linear-gradient(#2a1d5c,#1a1240);
     color:#fff;font-family:inherit;font-size:28px;box-shadow:0 5px 0 #0c0820;touch-action:none;cursor:pointer;padding:0}
   .sa-ctrl.sa-active{transform:translateY(3px);box-shadow:0 2px 0 #0c0820;filter:brightness(1.35)}
