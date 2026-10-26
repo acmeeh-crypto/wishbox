@@ -92,13 +92,30 @@
   // ---------------------------------------------------------
   // 도트 스프라이트 (코드로 픽셀 직접 찍기)
   // ---------------------------------------------------------
-  function makeSprite(rows, pal, mirror, outline) {
+  function makeSprite(rows, pal, mirror, outline, outerRim) {
     const full = mirror ? rows.map((r) => r + r.split('').reverse().join('')) : rows;
-    const padPx = outline ? 1 : 0;
+    const padPx = (outline ? 1 : 0) + (outerRim ? 1 : 0);
     const w = full[0].length + padPx * 2, h = full.length + padPx * 2;
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
     const g = c.getContext('2d');
+    if (outerRim) {
+      g.fillStyle = outerRim;
+      full.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+          const ch = row[x];
+          if (ch !== '.' && pal[ch]) {
+            for (let dy = -2; dy <= 2; dy++) {
+              for (let dx = -2; dx <= 2; dx++) {
+                if (Math.abs(dx) + Math.abs(dy) <= 3) {
+                  g.fillRect(x + padPx + dx, y + padPx + dy, 1, 1);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
     if (outline) {
       g.fillStyle = outline;
       full.forEach((row, y) => {
@@ -159,114 +176,120 @@
       '.kk.',
     ], FROG_PAL, false);
 
-    // 인공위성 (장애물: 선명한 밝은 외곽선 + 붉은 경고등 + 파란 태양전지판, 28x14 -> 30x16)
+    // 인공위성 (장애물: 검붉은 위험 레이저 날개 + 중앙 붉은 경고 코어, 노랑/하늘색 완전 배제)
     const satRows = [
-      '............rr',
-      '............rr',
-      '.............n',
-      '...........nnn',
-      'wwwwwwww..kyyy',
-      'wbcbcbcw..kyoy',
-      'wcbcbcbwnnkyry',
-      'wwwwwwwwnnkyoy',
-      'wbcbcbcw..kyyy',
-      'wcbcbcbw..kooo',
-      'wwwwwwww...nnn',
-      '............n.',
+      '...........rr.',
+      '...........rr.',
+      '............k.',
+      'r..r..r...kkkk',
+      'rrrrrrrr..kddd',
+      'rkrmrmrk..kdrd',
+      'rrmrmrmrkkkhlh',
+      'rrmrmrmrkkkhlh',
+      'rkrmrmrk..kdrd',
+      'rrrrrrrr..kddd',
+      'r..r..r...kkkk',
+      '............r.',
+      '...........rrr',
     ];
     SPR.sat = makeSprite(satRows, {
-      k: '#14142b', w: '#e8f4ff', b: '#0284c7', c: '#38bdf8',
-      n: '#cbd5e1', y: '#ffe14d', o: '#f59e0b', r: '#ff2a55',
-    }, true, '#1e1b4b');
+      k: '#1a091e', d: '#4a0e2e', m: '#880e4f', r: '#ff1744', h: '#ff5252', l: '#ffccd5',
+    }, true, '#120517', '#ff1744');
     SPR.satBlink = makeSprite(satRows, {
-      k: '#14142b', w: '#ffffff', b: '#2563eb', c: '#7dd3fc',
-      n: '#e2e8f0', y: '#fff3a0', o: '#ff9f1c', r: '#ffbe0b',
-    }, true, '#ff4d6d');
+      k: '#1a091e', d: '#6a0dad', m: '#c51162', r: '#ff0033', h: '#ff8a80', l: '#ffffff',
+    }, true, '#120517', '#ff6b8b');
 
-    // 우주쓰레기 (장애물: 밝은 은색/주황 파편 + 붉은 경고 코어, 18x13 -> 20x15)
+    // 우주쓰레기 (장애물: 사방으로 뾰족한 가시가 돋친 검붉은 우주 기뢰 형태)
     const debrisRows = [
-      '.....kkkkkk.......',
-      '...kkllllllkk.....',
-      '..kllnnnnnnllk....',
-      '.klnnoooonnnnkk...',
-      '.klnorrrronnmmlk..',
-      'klnnorrrroonmmmlk.',
-      'kllnnoooonnmmnnlk.',
-      'knmmnnnnnnmmoorlk.',
-      '.knmmmmmmmmooorlk.',
-      '.kknnmmnnnnnnllk..',
-      '...kkllllnnnnkk...',
-      '.....kkkkkkkk.....',
+      '........rr........',
+      '..rr....rr....rr..',
+      '...rr..kkkk..rr...',
+      '....kkkkkkkkkk....',
+      '..kkkddddddddkkk..',
+      '.kkddrrrrrrrrddkk.',
+      'rrkdrrrllllrrrdkrr',
+      'rrkdrrllllllrrdkrr',
+      'rrkdrrrllllrrrdkrr',
+      '.kkddrrrrrrrrddkk.',
+      '..kkkddddddddkkk..',
+      '....kkkkkkkkkk....',
+      '...rr..kkkk..rr...',
+      '..rr....rr....rr..',
+      '........rr........',
     ];
     SPR.debris = makeSprite(debrisRows, {
-      k: '#1e293b', l: '#f1f5f9', n: '#94a3b8', m: '#64748b', o: '#ff9f1c', r: '#ff2a55',
-    }, false, '#1e1b4b');
+      k: '#1f081e', d: '#4a153b', r: '#ff1744', l: '#ff5252',
+    }, false, '#120517', '#ff1744');
     SPR.debrisWarn = makeSprite(debrisRows, {
-      k: '#1e293b', l: '#ffffff', n: '#cbd5e1', m: '#64748b', o: '#ffe14d', r: '#ffbe0b',
-    }, false, '#ff6b6b');
+      k: '#2d082a', d: '#880e4f', r: '#ff0033', l: '#ffccd5',
+    }, false, '#120517', '#ff5252');
 
-    // 별 (아이템: 큼직한 황금빛 별 + 흰색 후광 테두리, 15x15 -> 17x17)
+    // 별 (아이템: 큼직하고 선명한 황금빛 5각 별 + 골드 아우라)
     const starRows = [
-      '.......y.......',
-      '......yyy......',
-      '......ywy......',
-      '.....yywyy.....',
-      'yyyyyywwwyyyyyy',
-      '.yyyywwwwwyyyy.',
-      '..yyywwwwwyyy..',
-      '...yyyywyyyy...',
-      '...yyyyyyyyy...',
-      '..yyyyo.oyyyy..',
-      '..yyyo...oyyy..',
-      '.yyyo.....oyyy.',
-      '.yy.........yy.',
+      '.......yyy.......',
+      '.......ywy.......',
+      '......yywyy......',
+      '......yywyy......',
+      'yyyyyyywwwyyyyyyy',
+      '.yyyyywwwwwyyyyy.',
+      '..yyyywwwwwyyyy..',
+      '...yyyywwwyyyy...',
+      '....yyyyyyyyy....',
+      '...yyyyo.oyyyy...',
+      '..yyyyo...oyyyy..',
+      '..yyyo.....oyyy..',
+      '.yyy.........yyy.',
     ];
-    SPR.star = makeSprite(starRows, { y: '#ffe14d', w: '#ffffff', o: '#ffae00' }, false, '#1e1b4b');
-    SPR.starGlow = makeSprite(starRows, { y: '#fff6a8', w: '#ffffff', o: '#ffe14d' }, false, '#4c1d95');
+    SPR.star = makeSprite(starRows, { y: '#ffd700', w: '#fffde7', o: '#ff9100' }, false, '#261400', '#ffee58');
+    SPR.starGlow = makeSprite(starRows, { y: '#ffee58', w: '#ffffff', o: '#ffd700' }, false, '#261400', '#ffffff');
 
-    // 외계인 (아이템: 형광 연두/민트 외계인 + 노란 안테나 + 흰색 외곽선, 16x14 -> 18x16)
+    // 외계인 (아이템: 선명한 네온 에메랄드 초록 외계인 + 민트 아우라)
     const alienRows = [
-      '..aa....',
-      '..aa....',
-      '...p....',
-      '...ppppp',
-      '..pplllp',
-      '.ppwwwwp',
-      '.ppweewp',
-      '.ppweewp',
-      '.ppppppp',
-      '..ppppmm',
-      '...ppppp',
-      '..pp.pp.',
+      '.aa.....',
+      '.aa.....',
+      '..p.....',
+      '..pppppp',
+      '.ppllllp',
+      'ppwwwwpp',
+      'ppweewpp',
+      'ppweewpp',
+      'pppppppp',
+      '.ppppmmm',
+      '..pppppp',
       '.pp..pp.',
-      '.pp..pp.',
+      'pp....pp',
     ];
     SPR.alien = makeSprite(alienRows, {
-      p: '#52ff7c', l: '#b8ffcb', m: '#1dd1a1', e: '#101020', w: '#ffffff', a: '#ffe14d',
-    }, true, '#1e1b4b');
+      p: '#00e676', l: '#b9f6ca', m: '#00b248', e: '#0a192f', w: '#ffffff', a: '#ffd700',
+    }, true, '#052e16', '#69f0ae');
     SPR.alienGlow = makeSprite(alienRows, {
-      p: '#7dff9e', l: '#ffffff', m: '#2ee5b5', e: '#101020', w: '#ffffff', a: '#ff6b9a',
-    }, true, '#4c1d95');
+      p: '#69f0ae', l: '#ffffff', m: '#00e676', e: '#0a192f', w: '#ffffff', a: '#ffee58',
+    }, true, '#052e16', '#b9f6ca');
 
-    // 로켓 (특별 아이템: 11x14 -> 13x16)
+    // 로켓 (특별 아이템: 장애물 빨간색과 절대 헷갈리지 않는 시안/코발트 블루 + 황금 부스터 로켓)
     const rocketRows = [
-      '.....r.....',
-      '....rrr....',
-      '...rrrrr...',
-      '...wwwww...',
-      '..wwwbwww..',
-      '..wwbbbww..',
-      '..wwwbwww..',
-      '..wwwwwww..',
-      '..wwwwwww..',
-      '.rrwwwwwrr.',
-      'rrrwwwwwrrr',
-      'rrr.ooo.rrr',
-      '....yyy....',
-      '.....y.....',
+      '......g......',
+      '.....ggg.....',
+      '....ggggg....',
+      '...bbbbbbb...',
+      '..bbbwwwbbb..',
+      '..bbwwcwwbb..',
+      '..bbwwcwwbb..',
+      '..bbbwwwbbb..',
+      '..bbbbbbbbb..',
+      '.ggbbbbbbbgg.',
+      'gggbbbbbbbggg',
+      'ggg.yyyyy.ggg',
+      '....yyyyy....',
+      '.....yyy.....',
+      '......y......',
     ];
-    SPR.rocket = makeSprite(rocketRows, { r: '#ff4d6d', w: '#eef1ff', b: '#38bdf8', o: '#ff9f1c', y: '#ffe14d' }, false, '#1e1b4b');
-    SPR.rocketGlow = makeSprite(rocketRows, { r: '#ffbe0b', w: '#ffffff', b: '#7dd3fc', o: '#ffe14d', y: '#ffffff' }, false, '#4c1d95');
+    SPR.rocket = makeSprite(rocketRows, {
+      g: '#ffd700', b: '#00b0ff', w: '#ffffff', c: '#004ecb', y: '#ffab00',
+    }, false, '#082f49', '#80d8ff');
+    SPR.rocketGlow = makeSprite(rocketRows, {
+      g: '#ffee58', b: '#40c4ff', w: '#ffffff', c: '#00b0ff', y: '#ffd700',
+    }, false, '#082f49', '#ffffff');
   }
 
   // ---------------------------------------------------------
@@ -1242,7 +1265,7 @@
     let y1 = Math.min(H - 1, Math.floor(proj(dn)));
     if (y1 < y0) y1 = y0;
     const pulse = ((G.t * 8) | 0) & 1;
-    const cyanOuter = pulse ? '#1e1b4b' : '#4c1d95';
+    const outerDanger = pulse ? '#ff1744' : '#880e4f';
 
     for (let y = y0; y <= y1; y++) {
       const d = ROW_D[y - HORIZON];
@@ -1254,44 +1277,42 @@
 
       const xL = Math.round(cx - hp);
       const wTotal = Math.max(2, Math.round(hp * 2));
-      const cyanW = Math.max(1, Math.round(hp * 0.16));
-      const whiteW = Math.max(1, Math.round(hp * 0.11));
+      const rimW = Math.max(1, Math.round(hp * 0.16));
+      const innerW = Math.max(1, Math.round(hp * 0.11));
 
-      // 1) 바깥 네온 시안(형광 하늘색) 테두리
-      ctx.fillStyle = cyanOuter;
+      // 1) 바깥 붉은 위험 경고 테두리
+      ctx.fillStyle = outerDanger;
       ctx.fillRect(xL, y, wTotal, 1);
 
-      // 위·아래 끝단 스캔라인은 시안 테두리로 마감
       if (absTz > 0.86 || (y1 - y0 >= 3 && (y === y0 || y === y1))) continue;
 
-      // 2) 안쪽 시안 이중 테두리 (흰 은하수길 위에서도 잘 보이도록)
-      const wWhite = wTotal - cyanW * 2;
-      if (wWhite > 0) {
-        ctx.fillStyle = '#00c8ff';
-        ctx.fillRect(xL + cyanW, y, wWhite, 1);
+      // 2) 안쪽 검붉은 이중 테두리
+      const wMid = wTotal - rimW * 2;
+      if (wMid > 0) {
+        ctx.fillStyle = pulse ? '#ff5252' : '#ff1744';
+        ctx.fillRect(xL + rimW, y, wMid, 1);
       }
 
-      // 위·아래 두 번째 스캔라인은 흰색 테두리로 마감
       if (absTz > 0.72 || (y1 - y0 >= 5 && (y === y0 + 1 || y === y1 - 1))) continue;
 
       // 3) 중심 칠흑색(#000000) 코어
-      const wBlack = wWhite - whiteW * 2;
+      const wBlack = wMid - innerW * 2;
       if (wBlack > 0) {
-        const xCore = xL + cyanW + whiteW;
+        const xCore = xL + rimW + innerW;
         ctx.fillStyle = '#000000';
         ctx.fillRect(xCore, y, wBlack, 1);
 
-        // 4) 레트로 도트 소용돌이(시안/화이트 픽셀 링)
+        // 4) 레트로 도트 소용돌이(붉은/보라 픽셀 링)
         if (wBlack >= 6) {
           const phase = G.t * 5 + y * 0.65;
           const sw1 = Math.sin(phase) * (wBlack * 0.34);
           const sw2 = Math.cos(phase * 0.85) * (wBlack * 0.18);
           if (((y + ((G.t * 10) | 0)) & 1) === 0) {
-            ctx.fillStyle = '#00f5ff';
-            ctx.fillRect(Math.round(cx + sw1), y, Math.max(1, Math.round(cyanW * 0.8)), 1);
+            ctx.fillStyle = '#ff1744';
+            ctx.fillRect(Math.round(cx + sw1), y, Math.max(1, Math.round(rimW * 0.8)), 1);
           }
           if (wBlack >= 12 && ((y + ((G.t * 14) | 0)) % 3 === 0)) {
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = '#ff8a80';
             ctx.fillRect(Math.round(cx + sw2), y, 1, 1);
           }
         }
@@ -1299,14 +1320,33 @@
     }
   }
 
-  function drawObjMarker(wx, d, color) {
-    if (d > 16) return;
+  // 장애물 전용: 바닥에 선명한 빨간 위험 경고 구역(경고 패드 + 테두리) 표시
+  function drawDangerZone(wx, d, blink) {
+    if (d > 18) return;
     const x = Math.round(sxAt(wx, d)), gy = Math.round(proj(d));
     if (gy < HORIZON || gy >= H) return;
     const s = DP / Math.max(0.65, d);
-    const mw = Math.max(2, Math.round(18 * s));
+    const mw = Math.max(4, Math.round(24 * s));
+    const mh = Math.max(2, Math.round(5 * s));
+    const x0 = Math.round(x - mw / 2), y0 = Math.round(gy - mh / 2);
+    ctx.fillStyle = blink ? 'rgba(255, 0, 51, 0.78)' : 'rgba(183, 28, 28, 0.65)';
+    ctx.fillRect(x0, y0, mw, mh);
+    if (mw >= 8) {
+      ctx.fillStyle = blink ? '#ffebee' : '#ff5252';
+      ctx.fillRect(x0 + 2, y0 + Math.floor(mh / 2), mw - 4, 1);
+    }
+  }
+
+  // 아이템 전용: 바닥의 밝은 획득 마커
+  function drawItemPad(wx, d, color) {
+    if (d > 18) return;
+    const x = Math.round(sxAt(wx, d)), gy = Math.round(proj(d));
+    if (gy < HORIZON || gy >= H) return;
+    const s = DP / Math.max(0.65, d);
+    const mw = Math.max(3, Math.round(18 * s));
+    const mh = Math.max(1, Math.round(3 * s));
     ctx.fillStyle = color;
-    ctx.fillRect(Math.round(x - mw / 2), gy, mw, Math.max(1, Math.round(2 * s)));
+    ctx.fillRect(Math.round(x - mw / 2), Math.round(gy - mh / 2), mw, mh);
   }
 
   function drawSpriteAt(spr, wx, d, hWorld, clipGround, scaleMul = 1.45, minH = 2) {
@@ -1322,57 +1362,82 @@
     return { x: Math.round(x), y: Math.round(gy - h / 2 - lift), w, h };
   }
 
-  function drawSparkleRing(cx, cy, r, color1, color2, d) {
-    const sz = d < 5 ? 2 : 1;
-    for (let i = 0; i < 4; i++) {
-      const a = G.t * 4.5 + i * 1.57;
-      const px = Math.round(cx + Math.cos(a) * r);
-      const py = Math.round(cy + Math.sin(a) * (r * 0.65));
-      ctx.fillStyle = (i & 1) ? color1 : color2;
-      ctx.fillRect(px, py, sz, sz);
+  // 아이템 전용: 멀리서도 '먹는 아이템'임을 한눈에 알 수 있는 밝은 후광(Halo) + 반짝이 링
+  function drawItemHalo(wx, d, hWorld, spr, scaleMul, glowFill, ringCol1, ringCol2) {
+    const persp = (DP / Math.max(0.65, d)) * scaleMul;
+    const h = Math.max(2, Math.round(spr.height * persp));
+    const w = Math.max(2, Math.round(spr.width * persp));
+    const cx = Math.round(sxAt(wx, d));
+    const gy = proj(d);
+    const lift = hWorld * (XS / Math.max(0.7, d)) * 0.38;
+    const cy = Math.round(gy - h / 2 - lift);
+    const rx = Math.max(2, Math.round(w * 0.62));
+    const ry = Math.max(2, Math.round(h * 0.62));
+
+    // 부드러운 도트 원형 후광(아이템 뒤에 깔림)
+    ctx.fillStyle = glowFill;
+    ctx.fillRect(cx - rx, cy - Math.round(ry * 0.65), rx * 2, Math.round(ry * 1.3));
+    ctx.fillRect(cx - Math.round(rx * 0.65), cy - ry, Math.round(rx * 1.3), ry * 2);
+
+    // 회전하는 반짝이 포인트
+    if (d < 14) {
+      const sz = d < 6 ? 2 : 1;
+      for (let i = 0; i < 4; i++) {
+        const a = G.t * 4.5 + i * 1.57;
+        const px = Math.round(cx + Math.cos(a) * (rx + 1));
+        const py = Math.round(cy + Math.sin(a) * (ry * 0.75 + 1));
+        ctx.fillStyle = (i & 1) ? ringCol1 : ringCol2;
+        ctx.fillRect(px, py, sz, sz);
+      }
     }
   }
 
   function drawObject(o) {
     const d = o.z - G.traveled;
     if (d < 0.3 || d > VIEW) return;
-    const blink = ((G.t * 6 + o.z) | 0) % 2 === 0;
+    const blink = ((G.t * 7 + o.z) | 0) % 2 === 0;
     switch (o.type) {
       case 'debris':
         if (o.hit) {
           const k = o.flyT;
           drawSpriteAt(SPR.debrisWarn, o.x + o.vx * k * 1.5, d, 0.5 + k * 1.2 - k * k * 1.5, false, 1.45, 2);
         } else {
-          drawObjMarker(o.x, d, 'rgba(255,60,90,0.55)');
-          drawSpriteAt(blink ? SPR.debris : SPR.debrisWarn, o.x, d, 0.02, false, 1.5, 2);
+          drawDangerZone(o.x, d, blink);
+          drawSpriteAt(blink ? SPR.debris : SPR.debrisWarn, o.x, d, 0.02, false, 1.45, 2);
         }
         break;
       case 'star':
         if (!o.gone) {
-          drawObjMarker(o.x, d, 'rgba(255,225,77,0.55)');
-          const info = drawSpriteAt(blink ? SPR.star : SPR.starGlow, o.x, d, 0.14 + Math.sin(G.t * 4.5 + o.z) * 0.06, false, 1.55, 2);
-          if (d < 10) drawSparkleRing(info.x, info.y, Math.max(4, info.w * 0.62), '#ffffff', '#ffe14d', d);
+          const liftH = 0.14 + Math.sin(G.t * 4.5 + o.z) * 0.06;
+          const spr = blink ? SPR.star : SPR.starGlow;
+          drawItemPad(o.x, d, 'rgba(255, 215, 0, 0.65)');
+          drawItemHalo(o.x, d, liftH, spr, 1.45, 'rgba(255, 238, 88, 0.42)', '#ffd700', '#ffffff');
+          drawSpriteAt(spr, o.x, d, liftH, false, 1.45, 2);
         }
         break;
       case 'sat':
         if (o.popped) {
-          drawObjMarker(o.x, d, 'rgba(255,60,90,0.65)');
-          drawSpriteAt(blink ? SPR.sat : SPR.satBlink, o.x, d, o.ph, false, 1.45, 2);
+          drawDangerZone(o.x, d, blink);
+          drawSpriteAt(blink ? SPR.sat : SPR.satBlink, o.x, d, o.ph, false, 1.38, 2);
         }
         break;
       case 'alien':
         if (!o.gone) {
           const ax = o.ax !== undefined ? o.ax : o.x;
-          const info = drawSpriteAt(blink ? SPR.alien : SPR.alienGlow, ax, d, o.ah, false, 1.55, 2);
-          if (d < 10) drawSparkleRing(info.x, info.y, Math.max(4, info.w * 0.6), '#7dff9e', '#ffe14d', d);
+          const spr = blink ? SPR.alien : SPR.alienGlow;
+          drawItemPad(ax, d, 'rgba(0, 230, 118, 0.65)');
+          drawItemHalo(ax, d, o.ah, spr, 1.45, 'rgba(105, 240, 174, 0.42)', '#00e676', '#ffee58');
+          drawSpriteAt(spr, ax, d, o.ah, false, 1.45, 2);
         }
         break;
       case 'rocket':
         if (!o.gone) {
-          drawObjMarker(o.x, d, 'rgba(255,107,154,0.65)');
           const glow = ((G.t * 8) | 0) % 2 === 0;
-          const info = drawSpriteAt(glow ? SPR.rocketGlow : SPR.rocket, o.x, d, 0.16 + Math.sin(G.t * 5) * 0.06, false, 1.6, 3);
-          if (d < 12) drawSparkleRing(info.x, info.y, Math.max(5, info.w * 0.7), '#fff6a8', '#ff6b9a', d);
+          const liftH = 0.16 + Math.sin(G.t * 5) * 0.06;
+          const spr = glow ? SPR.rocketGlow : SPR.rocket;
+          drawItemPad(o.x, d, 'rgba(0, 176, 255, 0.7)');
+          drawItemHalo(o.x, d, liftH, spr, 1.5, 'rgba(64, 196, 255, 0.45)', '#00b0ff', '#ffd700');
+          drawSpriteAt(spr, o.x, d, liftH, false, 1.5, 3);
         }
         break;
     }
