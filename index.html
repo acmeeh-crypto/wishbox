@@ -316,11 +316,6 @@
 
     </div><!-- /#screenViewport -->
 
-    <!-- ── FLOATING MINIGAME BUTTON (메인화면 전용, GNB 바로 위 오른쪽 고정) ── -->
-    <button type="button" class="floating-minigame-btn" id="btnOpenMinigame" aria-label="미니게임 우주 탐험">
-      <img src="minigame_icon.png" alt="미니게임" class="floating-minigame-img">
-    </button>
-
     <!-- ── BOTTOM GNB (하단 네비게이션 바) ────────────────────────── -->
     <nav class="bottom-gnb" id="bottomGnb" aria-label="하단 네비게이션">
       <div class="bottom-gnb-inner">
@@ -509,8 +504,7 @@ CREATE POLICY "Allow public read-write" ON space_scores FOR ALL USING (true) WIT
   <!-- Toast Notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="space.js?v=23"></script>
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=24"></script>
   <script>
     // Register Service Worker (PWA) with immediate update handling
     if ('serviceWorker' in navigator) {

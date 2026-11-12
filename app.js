@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSyncConfigFromStorage();
   initEventHandlers();
   initNavigation();
-  initSpaceAdventureIntegration();
+  // initSpaceAdventureIntegration(); // 우주탐험 미니게임 비활성화
   initSupabaseIfConfigured();
   if (!appState.isOnlineSync) {
     loadWishesFromStorage();
