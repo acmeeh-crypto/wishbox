@@ -81,12 +81,36 @@ html {
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-primary);
+  background-color: #0b1330;
   color: var(--text-main);
   line-height: 1.5;
   min-height: 100vh;
   padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
+
+/* 겨울 밤하늘 배경 (고정) + 눈 내리는 캔버스: 콘텐츠 뒤에만 표시 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, #0b1330 0%, #18234d 55%, #283063 100%);
+  pointer-events: none;
+}
+
+#snowCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 어두운 배경 위에 바로 놓이는 '소원 보기' 사람 탭 글자 가독성 */
+#personTabs { border-bottom-color: rgba(255, 255, 255, 0.25); }
+#personTabs .tab-btn:not(.active) { color: rgba(255, 255, 255, 0.85); }
+#personTabs .tab-btn:not(.active):hover { color: #fff; }
 
 /* Header */
 .app-header {
@@ -2119,6 +2143,35 @@ body {
 .gnb-tab-btn.active .gnb-label {
   font-weight: 800;
   color: #e11d48;
+}
+
+/* 크리스마스 SVG 아이콘: 비선택=회색, 선택=빨강·초록 */
+.gnb-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gnb-svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.gnb-svg .c-red,
+.gnb-svg .c-green { fill: #b4b4bd; transition: fill 0.2s ease; }
+.gnb-svg .c-white,
+.gnb-svg .c-light { fill: #fff; }
+.gnb-svg .s-red,
+.gnb-svg .s-green,
+.gnb-svg .o-red { stroke: #b4b4bd; transition: stroke 0.2s ease; }
+.gnb-svg .sep { stroke: #fff; stroke-width: 1.3px; paint-order: stroke; }
+
+.gnb-tab-btn.active .gnb-svg .c-red { fill: #d62828; }
+.gnb-tab-btn.active .gnb-svg .c-green { fill: #1f7a3a; }
+.gnb-tab-btn.active .gnb-svg .s-red,
+.gnb-tab-btn.active .gnb-svg .o-red { stroke: #d62828; }
+.gnb-tab-btn.active .gnb-svg .s-green { stroke: #1f7a3a; }
+.gnb-tab-btn.active .gnb-icon {
+  filter: drop-shadow(0 2px 5px rgba(214, 40, 40, 0.3));
 }
 
 /* 메인화면 전용 플로팅 미니게임 버튼 (GNB 바로 위 오른쪽 가장자리 고정 + 3D 입체 원형) */
