@@ -110,9 +110,16 @@ const SCREEN_TITLES = {
 
 let currentScreen = 'screen-home';
 
+// 하단 메뉴 순서 (스와이프 이동 및 화면 전환 방향 계산용)
+const SCREEN_ORDER = ['screen-home', 'screen-stats', 'screen-acquire', 'screen-register', 'screen-list'];
+
 function navigateToScreen(screenId) {
   if (screenId === currentScreen) return;
-  const direction = screenId === 'screen-home' ? -1 : 1;
+  const fromIdx = SCREEN_ORDER.indexOf(currentScreen);
+  const toIdx = SCREEN_ORDER.indexOf(screenId);
+  const direction = (fromIdx >= 0 && toIdx >= 0)
+    ? (toIdx > fromIdx ? 1 : -1)
+    : (screenId === 'screen-home' ? -1 : 1);
 
   // Outgoing screen: slide out
   const outgoing = document.querySelector('.app-screen.active');
@@ -189,6 +196,64 @@ function initNavigation() {
     if (!btn) return;
     navigateToScreen(btn.getAttribute('data-target-screen'));
   });
+
+  initSwipeNavigation();
+}
+
+// 좌우 스와이프로 메뉴 이동 (왼쪽으로 밀기 = 다음 메뉴, 오른쪽으로 밀기 = 이전 메뉴, 양 끝에서 멈춤)
+function initSwipeNavigation() {
+  const viewport = document.getElementById('screenViewport');
+  if (!viewport) return;
+
+  const MIN_DISTANCE = 60;   // 최소 가로 이동 거리(px)
+  const MAX_TIME = 800;      // 이 시간 안에 끝난 동작만 스와이프로 인정(ms)
+  let startX = 0, startY = 0, startTime = 0, tracking = false;
+
+  function isExcludedTarget(el) {
+    if (!el || !el.closest) return true;
+    if (el.closest('input, textarea, select, [contenteditable="true"]')) return true;
+    // 가로 스크롤 가능한 영역(탭 목록 등) 안에서 시작한 동작은 무시
+    for (let node = el; node && node !== viewport; node = node.parentElement) {
+      if (node.scrollWidth > node.clientWidth + 2) {
+        const ox = getComputedStyle(node).overflowX;
+        if (ox === 'auto' || ox === 'scroll') return true;
+      }
+    }
+    return false;
+  }
+
+  function isModalOpen() {
+    return !!document.querySelector('.modal-overlay:not(.hidden)');
+  }
+
+  viewport.addEventListener('touchstart', (e) => {
+    tracking = false;
+    if (e.touches.length !== 1 || isModalOpen() || isExcludedTarget(e.target)) return;
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    startTime = Date.now();
+    tracking = true;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    if (Date.now() - startTime > MAX_TIME) return;
+    if (Math.abs(dx) < MIN_DISTANCE) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.5) return; // 세로 스크롤 동작은 무시
+
+    const idx = SCREEN_ORDER.indexOf(currentScreen);
+    if (idx < 0) return;
+    const nextIdx = dx < 0 ? idx + 1 : idx - 1;
+    if (nextIdx < 0 || nextIdx >= SCREEN_ORDER.length) return; // 양 끝에서 멈춤
+    navigateToScreen(SCREEN_ORDER[nextIdx]);
+  }, { passive: true });
+
+  viewport.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
 }
 
 // ==========================================================
