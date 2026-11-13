@@ -102,10 +102,10 @@ const elements = {
 // SPA Screen Navigation
 // ==========================================================
 const SCREEN_TITLES = {
-  'screen-stats':    '📊 소원 현황판',
-  'screen-acquire':  '✨ 소원 획득',
-  'screen-register': '💌 소원 등록',
-  'screen-list':     '📜 소원 보기',
+  'screen-stats':    '소원 현황판',
+  'screen-acquire':  '소원 획득',
+  'screen-register': '소원 등록',
+  'screen-list':     '소원 보기',
 };
 
 let currentScreen = 'screen-home';
