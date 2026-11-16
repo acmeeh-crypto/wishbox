@@ -114,13 +114,41 @@ body::before {
 
 /* Header */
 .app-header {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1.5px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: none;
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: 8px 16px;
+  padding: 8px 16px 0;
+}
+
+/* ── CLOUD SHELF (헤더 하단 뭉게뭉게 구름 & 그라데이션) ── */
+.cloud-shelf-wrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin-top: -1px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 49;
+}
+
+.cloud-shelf-svg {
+  display: block;
+  width: 100%;
+  height: 52px;
+}
+
+.cloud-glow-haze {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(200, 220, 255, 0.22) 45%, rgba(11, 19, 48, 0.08) 80%, transparent 100%);
+  pointer-events: none;
 }
 
 .header-inner {
@@ -234,7 +262,7 @@ body::before {
 /* Layout Container */
 .container {
   max-width: 960px;
-  margin: 24px auto 0;
+  margin: 36px auto 0;
   padding: 0 16px;
   display: flex;
   flex-direction: column;
@@ -1656,7 +1684,7 @@ body::before {
    Home Screen (디데이 10일 이하 소원 목록)
    ========================================================== */
 .home-dday-container {
-  padding-top: 14px;
+  padding-top: 36px;
   padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px) + 92px);
 }
 

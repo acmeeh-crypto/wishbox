@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="wishbox_logo.png">
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=30">
 </head>
 <body class="is-home-screen">
 
@@ -52,6 +52,29 @@
             <span id="syncIndicator" class="sync-dot offline"></span>
           </button>
         </div>
+      </div>
+      <!-- ── CLOUD SHELF (헤더 하단 뭉게뭉게 구름 & 그라데이션) ── -->
+      <div class="cloud-shelf-wrapper" aria-hidden="true">
+        <svg class="cloud-shelf-svg" viewBox="0 0 1000 130" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="cloudGradFront" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98" />
+              <stop offset="35%" stop-color="#ffffff" stop-opacity="0.95" />
+              <stop offset="70%" stop-color="#ffffff" stop-opacity="0.6" />
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="cloudGradBack" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
+              <stop offset="40%" stop-color="#ffffff" stop-opacity="0.5" />
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <!-- Back cloud bubbles -->
+          <path d="M0,0 L0,30 A 35,35 0 0,0 60,45 A 45,45 0 0,0 145,50 A 40,40 0 0,0 220,40 A 55,55 0 0,0 325,55 A 45,45 0 0,0 410,45 A 50,50 0 0,0 505,60 A 45,45 0 0,0 590,45 A 55,55 0 0,0 695,55 A 45,45 0 0,0 780,45 A 50,50 0 0,0 875,55 A 40,40 0 0,0 950,45 A 35,35 0 0,0 1000,35 L1000,0 Z" fill="url(#cloudGradBack)"/>
+          <!-- Front puffy cloud bubbles -->
+          <path d="M0,0 L0,20 A 30,30 0 0,0 55,60 A 45,45 0 0,0 140,85 A 35,35 0 0,0 205,65 A 50,50 0 0,0 300,95 A 40,40 0 0,0 375,70 A 55,55 0 0,0 480,105 A 40,40 0 0,0 555,75 A 50,50 0 0,0 650,100 A 40,40 0 0,0 725,70 A 55,55 0 0,0 830,95 A 40,40 0 0,0 905,70 A 35,35 0 0,0 970,55 A 25,25 0 0,0 1000,30 L1000,0 Z" fill="url(#cloudGradFront)"/>
+        </svg>
+        <div class="cloud-glow-haze"></div>
       </div>
     </header>
 
